@@ -13,7 +13,7 @@
 
 ## 📌 Executive Summary
 
-**Payroll Sentinel** is an AI-powered payroll integrity platform operating as a continuous security layer between Human Resource Management Systems (HRMS / ERP software such as Workday, SAP SuccessFactors, BambooHR) and payroll disbursement gateways.
+**PayCertus** is an AI-powered payroll integrity platform operating as a continuous security layer between Human Resource Management Systems (HRMS / ERP software such as Workday, SAP SuccessFactors, BambooHR) and payroll disbursement gateways.
 
 Unlike traditional payroll software that prioritizes batch processing efficiency and relies on static retrospective audits, **Payroll Sentinel continuously evaluates payroll data before salary payments leave the organization**. 
 

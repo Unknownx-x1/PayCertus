@@ -1,0 +1,11 @@
+employee_id,employee_name,salary,overtime,attendance,bank_account
+E001,Aarav Mehta,65000,8,22,AC1001
+E002,Riya Sharma,72000,6,21,AC1002
+E003,Kabir Rao,68000,5,20,AC1003
+E004,Neha Kapoor,71000,7,22,AC1004
+E005,Arjun Verma,69500,160,0,AC9001
+E006,Ishita Singh,70500,145,0,AC9001
+E007,Dev Malhotra,69000,132,0,AC9001
+E008,Mira Shah,68000,120,0,AC9001
+E009,Rahul Jain,150000,180,0,AC9001
+E010,Tara Nair,66000,4,21,AC1010

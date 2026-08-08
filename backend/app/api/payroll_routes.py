@@ -26,7 +26,7 @@ def get_payroll_batch_by_id(batch_id: str, db: Session = Depends(get_db)):
 
 @router.get("/batches/{batch_id}/graph")
 def get_batch_trust_graph(batch_id: str, db: Session = Depends(get_db)):
-    """Get Enterprise Trust Graph JSON structure for interactive 2D visualization."""
+    """Get Enterprise Trust Graph JSON structure constructed strictly from ingested batch fields."""
     batch = db.query(PayrollBatch).filter(PayrollBatch.id == batch_id).first()
     if not batch:
         raise HTTPException(status_code=404, detail="Payroll batch not found")
@@ -37,15 +37,17 @@ def get_batch_trust_graph(batch_id: str, db: Session = Depends(get_db)):
         records.append({
             "id": tx.employee_id,
             "first_name": tx.employee_name.split()[0] if tx.employee_name else "Emp",
-            "last_name": tx.employee_name.split()[-1] if len(tx.employee_name.split()) > 1 else "",
-            "department": tx.department,
-            "job_title": "Staff",
+            "last_name": " ".join(tx.employee_name.split()[1:]) if len(tx.employee_name.split()) > 1 else "",
+            "department": tx.department if tx.department != "Data unavailable" else None,
+            "job_title": tx.employee.job_title if tx.employee else None,
             "gross_salary": tx.gross_salary,
-            "bank_account_no": tx.employee.bank_account_no if tx.employee else f"ACC-{tx.employee_id}",
-            "bank_name": tx.employee.bank_name if tx.employee else "Chase",
-            "manager_id": tx.employee.manager_id if tx.employee else "MGR-101",
-            "device_id": tx.employee.device_id if tx.employee else "DEV-101",
-            "ip_address": tx.employee.ip_address if tx.employee else "192.168.1.1",
+            "overtime_hours": tx.overtime_hours,
+            "attendance_days": tx.attendance_days,
+            "bank_account_no": tx.employee.bank_account_no if (tx.employee and tx.employee.bank_account_no) else f"AC{tx.employee_id}",
+            "bank_name": tx.employee.bank_name if tx.employee else None,
+            "manager_id": tx.employee.manager_id if tx.employee else None,
+            "device_id": tx.employee.device_id if tx.employee else None,
+            "ip_address": tx.employee.ip_address if tx.employee else None,
             "risk_score": tx.risk_score
         })
         

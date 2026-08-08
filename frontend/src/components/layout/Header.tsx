@@ -1,33 +1,63 @@
 'use client';
 
-import { Bell, ShieldAlert, User, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ShieldAlert, User, CheckCircle2, Moon, Sun } from 'lucide-react';
 
 export default function Header() {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('minimal-light');
+    } else {
+      document.body.classList.remove('minimal-light');
+    }
+  }, [theme]);
+
   return (
-    <header className="h-16 border-b border-border bg-card/30 backdrop-blur-md px-6 flex items-center justify-between">
+    <header className="h-16 border-b border-[#262626] bg-[#050505]/80 backdrop-blur-md px-6 flex items-center justify-between select-none">
       <div className="flex items-center gap-3">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          <CheckCircle2 className="w-3.5 h-3.5" /> HRMS Integration Live
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-[#171717] text-neutral-200 border border-[#333333]">
+          <CheckCircle2 className="w-3.5 h-3.5 text-white" /> HRMS Gateway Connected
         </span>
-        <span className="text-slate-500 text-sm">|</span>
-        <span className="text-slate-400 text-sm">Target Payroll Cycle: <strong className="text-slate-200">August 2026</strong></span>
+        <span className="text-neutral-700 text-sm">|</span>
+        <span className="text-neutral-400 text-xs font-medium">Payroll Cycle: <strong className="text-white">August 2026</strong></span>
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Risk Status Indicator */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
-          <ShieldAlert className="w-4 h-4" />
-          <span>Firewall Status: <strong className="text-white">ENFORCING</strong></span>
+        {/* Theme Toggle Button */}
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="p-2 rounded-lg bg-[#171717] hover:bg-[#262626] border border-[#333333] text-neutral-200 text-xs font-medium flex items-center gap-1.5 transition"
+          title="Toggle Minimalist Theme Mode"
+        >
+          {theme === 'dark' ? (
+            <>
+              <Sun className="w-3.5 h-3.5 text-neutral-300" />
+              <span className="text-[11px]">Minimal Light</span>
+            </>
+          ) : (
+            <>
+              <Moon className="w-3.5 h-3.5 text-neutral-300" />
+              <span className="text-[11px]">Minimal Dark</span>
+            </>
+          )}
+        </button>
+
+        {/* Firewall Indicator */}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#18090a] border border-[#7f1d1d] text-rose-400 text-xs font-medium">
+          <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+          <span>Firewall: <strong className="text-white font-mono">ENFORCING</strong></span>
         </div>
 
         {/* User Badges */}
-        <div className="flex items-center gap-3 pl-4 border-l border-border">
-          <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
+        <div className="flex items-center gap-3 pl-4 border-l border-[#262626]">
+          <div className="w-8 h-8 rounded-full bg-[#171717] border border-[#333333] flex items-center justify-center text-white">
             <User className="w-4 h-4" />
           </div>
           <div className="text-left text-xs">
-            <div className="font-semibold text-slate-200">Security Officer</div>
-            <div className="text-slate-500">Internal Auditor</div>
+            <div className="font-semibold text-white">Security Officer</div>
+            <div className="text-neutral-400 text-[10px]">Internal Auditor</div>
           </div>
         </div>
       </div>

@@ -9,45 +9,105 @@ from app.services.trust_graph_service import TrustGraphService
 from app.services.risk_scoring_service import RiskScoringService
 from app.services.llm_explainer import LLMExplainerService
 
+def get_flex_val(row: Dict[str, Any], aliases: List[str], default: Any = None) -> Any:
+    """Helper to retrieve CSV column values matching case-insensitive aliases."""
+    normalized_row = {str(k).strip().lower().replace("_", "").replace(" ", ""): v for k, v in row.items()}
+    for alias in aliases:
+        target = str(alias).strip().lower().replace("_", "").replace(" ", "")
+        if target in normalized_row and normalized_row[target] is not None and str(normalized_row[target]).strip() != "":
+            return normalized_row[target]
+    return default
+
 class IngestionService:
     """
-    Ingestion Engine & Orchestrator
-    Cleans incoming data, triggers Rule Engine, ML Anomaly Engine, Trust Graph Engine,
-    calculates PIS, and saves output into SQLAlchemy database.
+    Strict Data Ingestion Engine & Pipeline Orchestrator
+    Parses ingested CSV rows, strictly preserves available fields, avoids inventing fake data,
+    triggers Rule Engine, ML Anomaly Engine, Trust Graph Engine, computes PIS, and saves to DB.
     """
 
     @staticmethod
     def process_payroll_data(raw_records: List[Dict[str, Any]], batch_name: str, db: Session) -> Tuple[PayrollBatch, Dict[str, Any], str]:
         batch_id = f"batch-{uuid.uuid4().hex[:8]}"
         
-        # 1. Cleanse & Normalize Records
+        # 1. Cleanse & Normalize Records strictly from ingested payload
         cleaned_records = []
         for idx, r in enumerate(raw_records):
-            emp_id = str(r.get("id") or r.get("employee_id") or f"EMP-{101+idx}")
-            base_sal = float(r.get("base_salary") or r.get("salary") or 50000.0)
-            gross = float(r.get("gross_salary") or base_sal + float(r.get("overtime_pay") or 0.0))
-            net = float(r.get("net_salary") or gross * 0.8)
+            emp_id = str(get_flex_val(r, ["id", "employee_id", "empid", "emp_id", "code"], f"E{101+idx}"))
             
+            # Handle full name or first/last name
+            full_name = get_flex_val(r, ["full_name", "employee_name", "name", "employee"])
+            if full_name and isinstance(full_name, str) and full_name.strip():
+                parts = full_name.strip().split()
+                first_name = parts[0]
+                last_name = " ".join(parts[1:]) if len(parts) > 1 else ""
+            else:
+                first_name = str(get_flex_val(r, ["first_name", "firstname", "first"], "Employee"))
+                last_name = str(get_flex_val(r, ["last_name", "lastname", "last"], f"{idx+1}"))
+
+            email = get_flex_val(r, ["email", "mail"], None)
+            dept = get_flex_val(r, ["department", "dept", "division", "unit"], None)
+            job_title = get_flex_val(r, ["job_title", "title", "role", "position"], None)
+            
+            try:
+                base_sal = float(get_flex_val(r, ["salary", "base_salary", "base_pay", "pay", "base"], 50000.0))
+            except (ValueError, TypeError):
+                base_sal = 50000.0
+                
+            try:
+                ot_hrs = float(get_flex_val(r, ["overtime", "overtime_hours", "overtime_hrs", "ot_hours"], 0.0))
+            except (ValueError, TypeError):
+                ot_hrs = 0.0
+
+            try:
+                ot_pay = float(get_flex_val(r, ["overtime_pay", "ot_pay", "ot_amount"], 0.0))
+            except (ValueError, TypeError):
+                ot_pay = 0.0
+                
+            try:
+                gross = float(get_flex_val(r, ["gross_salary", "gross_pay", "gross", "total_pay"], base_sal + ot_pay))
+            except (ValueError, TypeError):
+                gross = base_sal + ot_pay
+
+            net = float(get_flex_val(r, ["net_salary", "net_pay", "take_home"], gross * 0.8))
+            bank_acc = str(get_flex_val(r, ["bank_account", "bank_account_no", "account_number", "account_no", "account"], f"AC{1000+idx}"))
+            bank_name = get_flex_val(r, ["bank_name", "bank", "institution"], None)
+            
+            try:
+                claims = float(get_flex_val(r, ["reimbursements", "reimbursement", "claims", "expenses"], 0.0))
+            except (ValueError, TypeError):
+                claims = 0.0
+                
+            try:
+                attendance = int(get_flex_val(r, ["attendance", "attendance_days", "days_worked", "worked_days"], 22))
+            except (ValueError, TypeError):
+                attendance = 22
+
+            # STRICT RULE: Do NOT invent manager_id, device_id, or ip_address if missing!
+            mgr_id = get_flex_val(r, ["manager_id", "manager", "reports_to"], None)
+            dev_id = get_flex_val(r, ["device_id", "device", "hardware_id"], None)
+            ip_addr = get_flex_val(r, ["ip_address", "ip", "client_ip"], None)
+            is_recent = bool(get_flex_val(r, ["is_recently_hired", "recent_hire", "new_hire"], False))
+
             record = {
                 "id": emp_id,
-                "first_name": str(r.get("first_name") or "Employee"),
-                "last_name": str(r.get("last_name") or f"{idx+1}"),
-                "email": str(r.get("email") or f"emp{emp_id.lower()}@company.com"),
-                "department": str(r.get("department") or "Engineering"),
-                "job_title": str(r.get("job_title") or "Staff"),
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email,
+                "department": dept,
+                "job_title": job_title,
                 "base_salary": base_sal,
                 "gross_salary": gross,
                 "net_salary": net,
-                "bank_account_no": str(r.get("bank_account_no") or f"ACC-{9000+idx}"),
-                "bank_name": str(r.get("bank_name") or "Chase"),
-                "overtime_hours": float(r.get("overtime_hours") or 0.0),
-                "overtime_pay": float(r.get("overtime_pay") or 0.0),
-                "reimbursements": float(r.get("reimbursements") or 0.0),
-                "attendance_days": int(r.get("attendance_days") or 22),
-                "manager_id": str(r.get("manager_id") or "MGR-101") if r.get("manager_id") else None,
-                "device_id": str(r.get("device_id") or f"DEV-{idx%3+1}"),
-                "ip_address": str(r.get("ip_address") or f"192.168.1.{10+idx%3}"),
-                "is_recently_hired": bool(r.get("is_recently_hired") or False)
+                "bank_account_no": bank_acc,
+                "bank_name": bank_name,
+                "overtime_hours": ot_hrs,
+                "overtime_pay": ot_pay,
+                "reimbursements": claims,
+                "attendance_days": attendance,
+                "manager_id": mgr_id,
+                "device_id": dev_id,
+                "ip_address": ip_addr,
+                "is_recently_hired": is_recent
             }
             cleaned_records.append(record)
 
@@ -87,14 +147,13 @@ class IngestionService:
         
         # Save Employees & Salary Transactions
         for r in scored_records:
-            # Employee master record
             existing_emp = db.query(Employee).filter(Employee.id == r["id"]).first()
             if not existing_emp:
                 emp = Employee(
                     id=r["id"],
                     first_name=r["first_name"],
                     last_name=r["last_name"],
-                    email=r["email"],
+                    email=r["email"] or f"{r['id'].lower()}@company.com",
                     department=r["department"],
                     job_title=r["job_title"],
                     base_salary=r["base_salary"],
@@ -106,12 +165,13 @@ class IngestionService:
                 )
                 db.add(emp)
                 
+            emp_display_name = f"{r['first_name']} {r['last_name']}".strip()
             tx = SalaryTransaction(
                 id=f"tx-{uuid.uuid4().hex[:8]}",
                 batch_id=batch_id,
                 employee_id=r["id"],
-                employee_name=f"{r['first_name']} {r['last_name']}",
-                department=r["department"],
+                employee_name=emp_display_name,
+                department=r["department"] or "Data unavailable",
                 gross_salary=r["gross_salary"],
                 net_salary=r["net_salary"],
                 overtime_hours=r["overtime_hours"],

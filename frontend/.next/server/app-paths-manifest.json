@@ -1,0 +1,7 @@
+{
+  "/overview/page": "app/overview/page.js",
+  "/investigation/page": "app/investigation/page.js",
+  "/trust-graph/page": "app/trust-graph/page.js",
+  "/reports/page": "app/reports/page.js",
+  "/page": "app/page.js"
+}
