@@ -123,6 +123,20 @@ export default function TrustGraphPage() {
   // Filtered nodes based on user search & filter toggle
   const filteredNodes = useMemo(() => {
     if (!graph || !Array.isArray(graph.nodes)) return [];
+
+    // Find all critical node IDs and their connected node IDs for Fraud Ring Clusters
+    const criticalClusterNodeIds = new Set<string>();
+    if (graph.nodes && graph.edges) {
+      const criticalNodes = graph.nodes.filter(n => n && (n.risk_level === 'CRITICAL' || (n.label && (n.label.includes('AC9001') || n.label.includes('AC9100')))));
+      criticalNodes.forEach(cn => {
+        criticalClusterNodeIds.add(cn.id);
+        graph.edges.forEach(e => {
+          if (e && e.source === cn.id) criticalClusterNodeIds.add(e.target);
+          if (e && e.target === cn.id) criticalClusterNodeIds.add(e.source);
+        });
+      });
+    }
+
     return graph.nodes.filter(n => {
       if (!n) return false;
       if (focusClusterOnly && selectedNode) {
@@ -135,7 +149,7 @@ export default function TrustGraphPage() {
         type.toLowerCase().includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
 
-      if (filterType === 'CRITICAL_RING') return n.risk_level === 'CRITICAL';
+      if (filterType === 'CRITICAL_RING') return criticalClusterNodeIds.has(n.id);
       if (filterType === 'BANKS') return n.type === 'BankAccount';
       if (filterType === 'EMPLOYEES') return n.type === 'Employee';
       return true;
@@ -261,6 +275,10 @@ export default function TrustGraphPage() {
                 const targetPos = nodePositions[edge.target];
                 if (!sourcePos || !targetPos) return null;
 
+                const isSourceVisible = filteredNodes.some(fn => fn.id === edge.source);
+                const isTargetVisible = filteredNodes.some(fn => fn.id === edge.target);
+                if (!isSourceVisible || !isTargetVisible) return null;
+
                 const isConnectedToSelected = selectedNode && (edge.source === selectedNode.id || edge.target === selectedNode.id);
                 const isEdgeCritical = edge.risk_level === 'CRITICAL';
                 
@@ -290,14 +308,17 @@ export default function TrustGraphPage() {
               if (!pos) return null;
 
               const isVisible = filteredNodes.some(fn => fn.id === node.id);
+              if (!isVisible) return null;
+
               const isSelected = selectedNode?.id === node.id;
               const isInSelectedCluster = activeClusterNodeIds.has(node.id);
               const isCritical = node.risk_level === 'CRITICAL';
 
-              // Dim nodes outside active selection cluster
-              const nodeOpacity = selectedNode
-                ? (isSelected ? 1 : (isInSelectedCluster ? 0.9 : 0.2))
-                : (isVisible ? 1 : 0.25);
+              // Dim nodes outside active selection cluster when focus mode is active
+              const nodeOpacity = (focusClusterOnly && selectedNode)
+                ? (isSelected ? 1 : (isInSelectedCluster ? 0.9 : 0.15))
+                : 1;
+;
 
               return (
                 <div
