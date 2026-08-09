@@ -4,7 +4,8 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { fetchBatches } from '@/lib/api';
 import { PayrollBatch, SalaryTransaction, RiskFinding } from '@/lib/types';
-import { Search, Sparkles, ShieldAlert, ShieldCheck, User, CreditCard, Clock, Calendar, ArrowRight, FileText, CheckCircle2 } from 'lucide-react';
+import { exportIndividualEmployeeReport } from '@/lib/exportReport';
+import { Search, Sparkles, ShieldAlert, ShieldCheck, User, CreditCard, Clock, Calendar, ArrowRight, FileText, CheckCircle2, Cpu, FileSpreadsheet, Network, Sliders } from 'lucide-react';
 
 function InvestigationContent() {
   const searchParams = useSearchParams();
@@ -44,22 +45,19 @@ function InvestigationContent() {
 
   const activeEmp = transactions.find(t => t.employee_id === selectedEmpId) || transactions[0];
 
-  // Specific risk findings linked to the selected employee or shared cluster
-  const empFindings = findings.filter(f => 
-    f.employee_id === selectedEmpId || 
-    (f.employee_name && activeEmp && f.employee_name.includes(activeEmp.employee_name)) ||
-    (f.layer === 'GRAPH' && activeEmp && (activeEmp as any).bank_account_no === 'AC9001')
-  );
+  const ruleFindings = findings.filter(f => f.layer === 'RULE' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
+  const mlFindings = findings.filter(f => f.layer === 'ANOMALY' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
+  const graphFindings = findings.filter(f => f.layer === 'GRAPH' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto select-none">
+    <div className="space-y-5 max-w-7xl mx-auto select-none">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2 tracking-tight">
-            <Search className="w-5 h-5 text-white" /> AI Investigation Hub & Evidence Workspace
+          <h1 className="text-lg font-bold text-white flex items-center gap-2 tracking-tight">
+            <Search className="w-4 h-4 text-white" /> AI Investigation Hub & Forensic Evidence Dossier
           </h1>
-          <p className="text-xs text-neutral-400 mt-1">Deep-dive forensic inspection of individual employee claims, anomaly signatures, and ring evidence</p>
+          <p className="text-xs text-[#a1a1aa] mt-0.5">Deep-dive 5-layer forensic breakdown: Rule Engine, Statistical ML, Trust Graph, and Risk Scoring</p>
         </div>
 
         {/* Batch Selector */}
@@ -72,7 +70,7 @@ function InvestigationContent() {
               setSelectedEmpId(b.transactions[0].employee_id);
             }
           }}
-          className="bg-[#0a0a0a] border border-[#262626] text-white text-xs font-mono font-semibold rounded-md px-3 py-2 outline-none focus:border-white"
+          className="bg-[#18181b] border border-[#27272a] text-white text-xs font-mono font-semibold rounded px-3 py-2 outline-none focus:border-white"
         >
           {batches.map(b => (
             <option key={b.id} value={b.id}>
@@ -82,44 +80,45 @@ function InvestigationContent() {
         </select>
       </div>
 
-      {/* Main 2-Column Investigation Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Employee Transaction List */}
-        <div className="minimal-panel p-5 space-y-4">
-          <div className="flex justify-between items-center border-b border-[#262626] pb-3">
+      {/* Main 2-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        {/* Left Column: Employee List */}
+        <div className="enterprise-card p-4 space-y-3">
+          <div className="flex justify-between items-center border-b border-[#27272a] pb-2.5">
             <h2 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
               Batch Transactions ({transactions.length})
             </h2>
-            <span className="text-[10px] font-mono text-neutral-400">Select target</span>
+            <span className="text-[10px] font-mono text-[#a1a1aa]">Select employee</span>
           </div>
 
-          <div className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-[640px] overflow-y-auto pr-1">
             {transactions.map((tx) => {
               const isSelected = tx.employee_id === selectedEmpId;
-              const isCritical = tx.risk_score >= 70;
+              const isCritical = tx.risk_score >= 75;
+              const isHigh = tx.risk_score >= 60;
 
               return (
                 <div
                   key={tx.id}
                   onClick={() => setSelectedEmpId(tx.employee_id)}
-                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                    isSelected ? 'bg-white text-black border-white shadow-md' : 'bg-[#050505] border-[#262626] text-white hover:border-neutral-500'
+                  className={`p-3 rounded border cursor-pointer transition-colors ${
+                    isSelected ? 'bg-white text-black border-white font-bold' : 'bg-[#09090b] border-[#27272a] text-white hover:border-[#3f3f46]'
                   }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="font-bold text-xs">{tx.employee_name}</div>
-                      <div className={`text-[10px] font-mono ${isSelected ? 'text-neutral-700' : 'text-neutral-400'}`}>
-                        ID: {tx.employee_id} • {(tx as any).bank_account_no || 'AC9001'}
+                      <div className={`text-[10px] font-mono ${isSelected ? 'text-[#3f3f46]' : 'text-[#a1a1aa]'}`}>
+                        ID: {tx.employee_id} {tx.bank_account_no ? `• ${tx.bank_account_no}` : ''}
                       </div>
                     </div>
 
                     <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-extrabold border ${
                       isCritical
-                        ? (isSelected ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-[#18090a] text-rose-400 border-[#7f1d1d]')
-                        : (isSelected ? 'bg-neutral-200 text-black border-neutral-300' : 'bg-[#171717] text-white border-[#333333]')
+                        ? 'bg-[#3f1214] text-[#fca5a5] border-[#7f1d1d]'
+                        : (isHigh ? 'bg-[#451a03] text-[#fdba74] border-[#9a3412]' : (isSelected ? 'bg-[#27272a] text-black border-[#3f3f46]' : 'bg-[#064e3b] text-[#6ee7b7] border-[#047857]'))
                     }`}>
-                      {tx.risk_score} / 100
+                      Risk: {tx.risk_score}/100
                     </span>
                   </div>
                 </div>
@@ -128,106 +127,200 @@ function InvestigationContent() {
           </div>
         </div>
 
-        {/* Right Column: Deep-Dive Employee Forensic Inspector */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Right Column: 5-Layer Forensic Evidence Inspector */}
+        <div className="lg:col-span-2 space-y-5">
           {activeEmp ? (
             <>
-              {/* Employee Target Dossier Banner */}
-              <div className="minimal-panel p-6 border-l-4 border-l-white space-y-4">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#262626] pb-4">
+              {/* Employee Header Banner */}
+              <div className="enterprise-card p-5 border-l-4 border-l-white space-y-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-[#27272a] pb-3">
                   <div>
-                    <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-wider">Target Forensic Dossier</span>
-                    <h2 className="text-xl font-extrabold text-white mt-0.5">{activeEmp.employee_name}</h2>
-                    <div className="text-xs font-mono text-neutral-400 mt-0.5">
-                      Employee ID: <strong className="text-white">{activeEmp.employee_id}</strong> • Bank Account: <strong className="text-white">{(activeEmp as any).bank_account_no || 'AC9001'}</strong>
+                    <span className="text-[10px] font-mono font-bold text-[#a1a1aa] uppercase tracking-wider">Target Forensic Dossier</span>
+                    <h2 className="text-lg font-extrabold text-white mt-0.5 font-mono">{activeEmp.employee_name}</h2>
+                    <div className="text-xs font-mono text-[#a1a1aa] mt-0.5">
+                      ID: <strong className="text-white">{activeEmp.employee_id}</strong> • Bank Account: <strong className="text-white">{activeEmp.bank_account_no || 'Data unavailable'}</strong>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1.5 rounded text-xs font-mono font-extrabold border ${
-                      activeEmp.risk_score >= 70
-                        ? 'bg-[#18090a] text-rose-400 border-[#7f1d1d]'
-                        : 'bg-[#171717] text-white border-[#333333]'
-                    }`}>
-                      Risk Score: {activeEmp.risk_score} / 100 ({activeEmp.status})
-                    </span>
+                  <div className="text-right">
+                    <span className="text-[10px] font-mono text-[#a1a1aa] uppercase font-bold">Firewall Decision</span>
+                    <div className="mt-1">
+                      <span className={`px-3 py-1 rounded text-xs font-mono font-extrabold border ${
+                        activeEmp.status === 'BLOCKED'
+                          ? 'bg-[#3f1214] text-[#fca5a5] border-[#7f1d1d]'
+                          : (activeEmp.status === 'HOLD' ? 'bg-[#451a03] text-[#fdba74] border-[#9a3412]' : 'bg-[#064e3b] text-[#6ee7b7] border-[#047857]')
+                      }`}>
+                        {activeEmp.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Financial Metrics Strip */}
+                {/* Layer 4: Deterministic Risk Contribution Breakdown Bar */}
+                <div className="p-3.5 rounded bg-[#09090b] border border-[#27272a] space-y-2">
+                  <div className="flex justify-between items-center text-xs font-mono">
+                    <span className="text-[#a1a1aa] font-bold uppercase">Layer 4: Risk Aggregation Breakdown</span>
+                    <span className="text-white font-bold">Final Employee Risk Score: <span className="text-red-400">{activeEmp.risk_score} / 100</span></span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 font-mono text-[11px]">
+                    <div className="p-2 rounded bg-[#18181b] border border-[#27272a] text-center">
+                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Rule Points</span>
+                      <span className="font-bold text-white">+{activeEmp.rule_contrib || 0} pts</span>
+                    </div>
+                    <div className="p-2 rounded bg-[#18181b] border border-[#27272a] text-center">
+                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">ML Outlier Points</span>
+                      <span className="font-bold text-white">+{activeEmp.ml_contrib || 0} pts</span>
+                    </div>
+                    <div className="p-2 rounded bg-[#18181b] border border-[#27272a] text-center">
+                      <span className="text-[#a1a1aa] block text-[9px] uppercase font-bold">Graph Cluster Points</span>
+                      <span className="font-bold text-white">+{activeEmp.graph_contrib || 0} pts</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Parameters */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
-                  <div className="p-3 rounded-lg bg-[#050505] border border-[#262626]">
-                    <span className="text-[10px] text-neutral-400 uppercase font-semibold">Gross Salary</span>
-                    <p className="text-sm font-bold text-white mt-1">${activeEmp.gross_salary.toLocaleString()}</p>
+                  <div className="p-3 rounded bg-[#09090b] border border-[#27272a]">
+                    <span className="text-[10px] text-[#a1a1aa] uppercase font-semibold">Gross Salary</span>
+                    <p className="text-sm font-bold text-white mt-0.5">${activeEmp.gross_salary.toLocaleString()}</p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[#050505] border border-[#262626]">
-                    <span className="text-[10px] text-neutral-400 uppercase font-semibold">Overtime</span>
-                    <p className="text-sm font-bold text-white mt-1">{activeEmp.overtime_hours} hrs</p>
+                  <div className="p-3 rounded bg-[#09090b] border border-[#27272a]">
+                    <span className="text-[10px] text-[#a1a1aa] uppercase font-semibold">Overtime</span>
+                    <p className="text-sm font-bold text-white mt-0.5">{activeEmp.overtime_hours} hrs</p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[#050505] border border-[#262626]">
-                    <span className="text-[10px] text-neutral-400 uppercase font-semibold">Attendance</span>
-                    <p className={`text-sm font-bold mt-1 ${activeEmp.attendance_days === 0 ? 'text-rose-400' : 'text-white'}`}>
+                  <div className="p-3 rounded bg-[#09090b] border border-[#27272a]">
+                    <span className="text-[10px] text-[#a1a1aa] uppercase font-semibold">Attendance</span>
+                    <p className={`text-sm font-bold mt-0.5 ${activeEmp.attendance_days === 0 ? 'text-[#fca5a5]' : 'text-white'}`}>
                       {activeEmp.attendance_days} days
                     </p>
                   </div>
-                  <div className="p-3 rounded-lg bg-[#050505] border border-[#262626]">
-                    <span className="text-[10px] text-neutral-400 uppercase font-semibold">Destination Bank</span>
-                    <p className="text-sm font-bold text-white mt-1">{(activeEmp as any).bank_account_no || 'AC9001'}</p>
+                  <div className="p-3 rounded bg-[#09090b] border border-[#27272a]">
+                    <span className="text-[10px] text-[#a1a1aa] uppercase font-semibold">Bank Account</span>
+                    <p className="text-sm font-bold text-white mt-0.5">{activeEmp.bank_account_no || 'Data unavailable'}</p>
                   </div>
                 </div>
               </div>
 
-              {/* AI Explanation & Multi-Layer Evidence Checklist */}
-              <div className="minimal-panel p-6 space-y-4">
-                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase font-mono tracking-wider border-b border-[#262626] pb-3">
-                  <Sparkles className="w-4 h-4 text-white" /> Multi-Layer Anomaly Breakdown for {activeEmp.employee_name}
+              {/* Layer 1: Rule Engine Findings */}
+              <div className="enterprise-card p-5 space-y-3">
+                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase font-mono tracking-wider border-b border-[#27272a] pb-3">
+                  <FileSpreadsheet className="w-4 h-4 text-white" /> Layer 1 — Deterministic Rule Engine
                 </div>
 
-                {empFindings.length > 0 ? (
-                  <div className="space-y-3">
-                    {empFindings.map((f) => (
-                      <div key={f.id} className="p-4 rounded-lg bg-[#050505] border border-[#262626] space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                            f.severity === 'CRITICAL' ? 'bg-[#18090a] text-rose-400 border border-[#7f1d1d]' : 'bg-[#171717] text-neutral-300 border border-[#333333]'
-                          }`}>
-                            {f.severity} • {f.layer} LAYER
+                {ruleFindings.length > 0 ? (
+                  <div className="space-y-2">
+                    {ruleFindings.map((f) => (
+                      <div key={f.id} className="p-3.5 rounded bg-[#09090b] border border-[#27272a] space-y-1">
+                        <div className="flex justify-between items-center font-mono">
+                          <span className="text-[10px] font-bold bg-[#3f1214] text-[#fca5a5] border border-[#7f1d1d] px-2 py-0.5 rounded">
+                            {f.severity} • {f.rule_code}
                           </span>
-                          <span className="text-[10px] font-mono text-neutral-500">{f.rule_code}</span>
+                          <span className="text-[10px] text-[#71717a]">Rule Violation</span>
                         </div>
-                        <h4 className="text-sm font-bold text-white">{f.title}</h4>
-                        <p className="text-xs text-neutral-300 leading-relaxed">{f.description}</p>
+                        <h4 className="text-xs font-bold text-white mt-1">{f.title}</h4>
+                        <p className="text-xs text-[#a1a1aa] font-mono leading-relaxed">{f.description}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="p-6 rounded-lg bg-[#050505] border border-[#262626] text-center">
-                    <ShieldCheck className="w-6 h-6 text-white mx-auto mb-2" />
-                    <p className="text-xs font-semibold text-white">No Policy Breaches Found for {activeEmp.employee_name}</p>
-                    <p className="text-[11px] text-neutral-400 mt-0.5">This transaction cleared all rule-based, statistical ML, and trust graph cluster evaluations cleanly.</p>
+                  <div className="text-xs text-[#6ee7b7] font-mono p-3 bg-[#09090b] border border-[#27272a] rounded">
+                    ✓ No deterministic policy violations detected.
                   </div>
                 )}
+              </div>
 
-                {/* Auditor Forensic Action Toolbar */}
-                <div className="pt-2 flex flex-wrap items-center gap-3 border-t border-[#262626]">
-                  <button
-                    onClick={() => setActionSuccess(`Individual transaction for ${activeEmp.employee_name} placed on HOLD.`)}
-                    className="minimal-btn-secondary"
-                  >
-                    Hold Payment
-                  </button>
-                  <button
-                    onClick={() => setActionSuccess(`Audit Packet exported for ${activeEmp.employee_name} (${activeEmp.employee_id}).`)}
-                    className="minimal-btn-primary"
-                  >
-                    <FileText className="w-3.5 h-3.5" /> Export Individual Evidence Packet
-                  </button>
+              {/* Layer 2: Statistical ML Engine (ANOMALY ≠ FRAUD) */}
+              <div className="enterprise-card p-5 space-y-3">
+                <div className="flex items-center justify-between border-b border-[#27272a] pb-3">
+                  <div className="flex items-center gap-2 text-white font-bold text-xs uppercase font-mono tracking-wider">
+                    <Cpu className="w-4 h-4 text-white" /> Layer 2 — Statistical ML Outlier Engine
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-[#a1a1aa] bg-[#27272a] px-2 py-0.5 rounded">
+                    Core Principle: ANOMALY ≠ FRAUD
+                  </span>
                 </div>
 
-                {actionSuccess && (
-                  <div className="p-3 rounded-md bg-[#171717] border border-[#333333] text-white text-xs font-semibold font-mono flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-white" /> {actionSuccess}
+                {mlFindings.length > 0 ? (
+                  <div className="space-y-2 font-mono">
+                    {mlFindings.map((f) => (
+                      <div key={f.id} className="p-3.5 rounded bg-[#09090b] border border-[#27272a] space-y-2">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="font-bold text-white">{f.title}</span>
+                          <span className="text-[10px] bg-[#27272a] text-white px-2 py-0.5 rounded border border-[#3f3f46]">
+                            Model: {f.evidence_json?.model || 'Isolation Forest'}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-[#a1a1aa] leading-relaxed">{f.description}</p>
+
+                        {f.evidence_json?.major_deviations && (
+                          <div className="p-2.5 rounded bg-[#18181b] border border-[#27272a] space-y-1 text-[11px]">
+                            <span className="text-[#a1a1aa] font-bold uppercase block text-[9px]">Calculated Baseline Deviations</span>
+                            {f.evidence_json.major_deviations.map((dev: string, i: number) => (
+                              <div key={i} className="text-white flex items-center gap-1.5">
+                                <span className="text-red-400">•</span> {dev}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
+                ) : (
+                  <div className="text-xs text-[#6ee7b7] font-mono p-3 bg-[#09090b] border border-[#27272a] rounded">
+                    ✓ Feature values conform to standard population baselines. No multivariate ML anomaly detected.
+                  </div>
+                )}
+              </div>
+
+              {/* Layer 3: Trust Graph Engine */}
+              <div className="enterprise-card p-5 space-y-3">
+                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase font-mono tracking-wider border-b border-[#27272a] pb-3">
+                  <Network className="w-4 h-4 text-white" /> Layer 3 — Enterprise Trust Graph Topology
+                </div>
+
+                {graphFindings.length > 0 ? (
+                  <div className="space-y-2 font-mono">
+                    {graphFindings.map((f) => (
+                      <div key={f.id} className="p-3.5 rounded bg-[#3f1214] border border-[#7f1d1d] text-[#fca5a5] space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold bg-[#5c1d20] text-white px-2 py-0.5 rounded">
+                            CRITICAL CLUSTER DETECTED
+                          </span>
+                          <span className="text-[10px]">{f.rule_code}</span>
+                        </div>
+                        <h4 className="text-xs font-bold text-white mt-1">{f.title}</h4>
+                        <p className="text-xs leading-relaxed text-[#fca5a5]">{f.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-xs text-[#6ee7b7] font-mono p-3 bg-[#09090b] border border-[#27272a] rounded">
+                    ✓ Unique payment destination. No shared infrastructure or fraud cluster relationship detected.
+                  </div>
+                )}
+              </div>
+
+              {/* Auditor Action Toolbar */}
+              <div className="enterprise-card p-5 flex flex-wrap items-center gap-3">
+                <button
+                  onClick={() => setActionSuccess(`Individual payment for ${activeEmp.employee_name} placed on HOLD.`)}
+                  className="btn-solid-secondary"
+                >
+                  Hold Payment
+                </button>
+                <button
+                  onClick={() => exportIndividualEmployeeReport(activeEmp, findings)}
+                  className="btn-solid-primary"
+                >
+                  <FileText className="w-3.5 h-3.5" /> Export Individual Evidence Packet
+                </button>
+
+                {actionSuccess && (
+                  <span className="text-xs font-mono font-semibold text-[#6ee7b7] flex items-center gap-1.5 ml-auto">
+                    <CheckCircle2 className="w-4 h-4" /> {actionSuccess}
+                  </span>
                 )}
               </div>
             </>
@@ -240,7 +333,7 @@ function InvestigationContent() {
 
 export default function InvestigationPage() {
   return (
-    <Suspense fallback={<div className="text-white text-xs font-mono p-6">Loading Investigation Workspace...</div>}>
+    <Suspense fallback={<div className="text-white text-xs font-mono p-5">Loading Investigation Workspace...</div>}>
       <InvestigationContent />
     </Suspense>
   );

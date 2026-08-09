@@ -1,15 +1,18 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { fetchBatches, fetchGraph } from '@/lib/api';
-import { GraphPayload, GraphNode, PayrollBatch } from '@/lib/types';
-import { Network, User, CreditCard, Laptop, Building, Activity, Info, ShieldAlert, ShieldCheck, Cpu } from 'lucide-react';
+import { GraphPayload, GraphNode, GraphEdge, PayrollBatch } from '@/lib/types';
+import { Network, User, CreditCard, Laptop, Building, Activity, Info, ShieldAlert, ShieldCheck, Cpu, Search, Eye, RefreshCw } from 'lucide-react';
 
 export default function TrustGraphPage() {
   const [batches, setBatches] = useState<PayrollBatch[]>([]);
   const [selectedBatchId, setSelectedBatchId] = useState<string>('');
   const [graph, setGraph] = useState<GraphPayload | null>(null);
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterType, setFilterType] = useState<'ALL' | 'CRITICAL_RING' | 'BANKS' | 'EMPLOYEES'>('ALL');
+  const [focusClusterOnly, setFocusClusterOnly] = useState<boolean>(false);
 
   useEffect(() => {
     loadBatches();
@@ -29,25 +32,106 @@ export default function TrustGraphPage() {
     const g = await fetchGraph(batchId);
     setGraph(g);
     if (g.nodes.length > 0) {
-      setSelectedNode(g.nodes[0]);
+      const ringNode = g.nodes.find(n => n.label.includes('AC9001') || n.risk_level === 'CRITICAL');
+      setSelectedNode(ringNode || g.nodes[0]);
     }
   }
 
+  // Connected nodes and edges map for relationship dimming & cluster isolation
+  const activeClusterNodeIds = useMemo(() => {
+    if (!selectedNode || !graph) return new Set<string>();
+
+    const connectedIds = new Set<string>();
+    connectedIds.add(selectedNode.id);
+
+    graph.edges.forEach(edge => {
+      if (edge.source === selectedNode.id) connectedIds.add(edge.target);
+      if (edge.target === selectedNode.id) connectedIds.add(edge.source);
+    });
+
+    return connectedIds;
+  }, [selectedNode, graph]);
+
+  // 2D Network Node Position Layout Engine
+  const nodePositions = useMemo(() => {
+    if (!graph || !graph.nodes) return {};
+
+    const positions: Record<string, { x: number; y: number }> = {};
+    const empNodes = graph.nodes.filter(n => n.type === 'Employee');
+    const bankNodes = graph.nodes.filter(n => n.type === 'BankAccount');
+    const otherNodes = graph.nodes.filter(n => n.type !== 'Employee' && n.type !== 'BankAccount');
+
+    // Layout Employee Nodes in Column A (Left)
+    empNodes.forEach((node, idx) => {
+      positions[node.id] = {
+        x: 140,
+        y: 40 + idx * 46
+      };
+    });
+
+    // Layout Bank Account Nodes in Column B (Right)
+    let bankIdx = 0;
+    bankNodes.forEach((node) => {
+      const connEdges = graph.edges.filter(e => e.target === node.id || e.source === node.id);
+      const connEmpIds = connEdges.map(e => e.source === node.id ? e.target : e.source);
+
+      if (connEmpIds.length >= 2) {
+        // Shared bank account cluster: position centrally aligned to its connected employees
+        const empYs = connEmpIds.map(eid => positions[eid]?.y).filter(Boolean);
+        const avgY = empYs.length > 0 ? empYs.reduce((a, b) => a + b, 0) / empYs.length : 240;
+        positions[node.id] = { x: 580, y: avgY };
+      } else {
+        // Unique bank account: position aligned to its single connected employee
+        const empId = connEmpIds[0];
+        if (empId && positions[empId]) {
+          positions[node.id] = { x: 580, y: positions[empId].y };
+        } else {
+          positions[node.id] = { x: 580, y: 50 + bankIdx * 65 };
+          bankIdx++;
+        }
+      }
+    });
+
+    // Layout optional entity nodes (Devices, IPs, Depts, Managers) if present in dataset
+    otherNodes.forEach((node, idx) => {
+      positions[node.id] = { x: 360, y: 80 + idx * 60 };
+    });
+
+    return positions;
+  }, [graph]);
+
+  // Filtered nodes based on user search & filter toggle
+  const filteredNodes = useMemo(() => {
+    if (!graph) return [];
+    return graph.nodes.filter(n => {
+      if (focusClusterOnly && selectedNode) {
+        if (!activeClusterNodeIds.has(n.id)) return false;
+      }
+
+      const matchesSearch = n.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        n.type.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      if (filterType === 'CRITICAL_RING') return n.risk_level === 'CRITICAL';
+      if (filterType === 'BANKS') return n.type === 'BankAccount';
+      if (filterType === 'EMPLOYEES') return n.type === 'Employee';
+      return true;
+    });
+  }, [graph, searchQuery, filterType, focusClusterOnly, selectedNode, activeClusterNodeIds]);
+
   const empCount = graph?.nodes.filter(n => n.type === 'Employee').length || 0;
   const bankCount = graph?.nodes.filter(n => n.type === 'BankAccount').length || 0;
-  const deptCount = graph?.nodes.filter(n => n.type === 'Department').length || 0;
-  const devCount = graph?.nodes.filter(n => n.type === 'Device').length || 0;
-  const ipCount = graph?.nodes.filter(n => n.type === 'IPAddress').length || 0;
-  const mgrCount = graph?.nodes.filter(n => n.type === 'Manager').length || 0;
+  const canvasHeight = Math.max(500, empCount * 48 + 40);
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-5 max-w-7xl mx-auto select-none">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            <Network className="w-5 h-5 text-purple-400" /> Enterprise Trust Graph Workspace
+          <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+            <Network className="w-4 h-4 text-white" /> Enterprise Trust Graph Workspace
           </h1>
-          <p className="text-xs text-slate-400 mt-1">Dynamic network topology modeling employees, payment destinations, and shared infrastructure clusters</p>
+          <p className="text-xs text-[#a1a1aa] mt-0.5">Interactive 2D topology map rendering relationships between employees, bank destinations, and fraud ring clusters</p>
         </div>
 
         {/* Batch Selector */}
@@ -57,7 +141,7 @@ export default function TrustGraphPage() {
             setSelectedBatchId(e.target.value);
             loadGraphData(e.target.value);
           }}
-          className="bg-slate-900 border border-slate-800 text-slate-200 text-xs font-mono font-semibold rounded-md px-3 py-2 outline-none focus:border-purple-400"
+          className="bg-[#18181b] border border-[#27272a] text-white text-xs font-mono font-semibold rounded px-3 py-2 outline-none focus:border-white"
         >
           {batches.map(b => (
             <option key={b.id} value={b.id}>
@@ -68,107 +152,210 @@ export default function TrustGraphPage() {
       </div>
 
       {/* Main Graph Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[550px]">
-        {/* Dynamic Graph Visualizer Canvas */}
-        <div className="lg:col-span-2 minimal-panel p-6 relative flex flex-col justify-between overflow-hidden">
-          <div className="flex flex-wrap justify-between items-center gap-3 z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 min-h-[580px]">
+        {/* Dynamic 2D SVG Graph Network Visualizer Canvas */}
+        <div className="lg:col-span-2 enterprise-card p-5 relative flex flex-col justify-between overflow-hidden">
+          {/* Header Controls & Filter Bar */}
+          <div className="flex flex-wrap justify-between items-center gap-3 z-10 border-b border-[#27272a] pb-3">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-bold text-purple-400 bg-purple-500/10 px-3 py-1 rounded-md border border-purple-500/20">
+              <span className="text-[10px] font-mono font-bold text-white bg-[#27272a] px-2.5 py-1 rounded border border-[#3f3f46]">
                 Nodes: {graph?.nodes.length || 0} • Edges: {graph?.edges.length || 0}
               </span>
               {graph?.fraud_rings_count ? (
-                <span className="text-[10px] font-mono font-bold text-rose-400 bg-rose-500/10 px-2.5 py-1 rounded-md border border-rose-500/30 flex items-center gap-1">
-                  <ShieldAlert className="w-3 h-3" /> {graph.fraud_rings_count} Fraud Cluster Detected
+                <span className="text-[10px] font-mono font-bold text-[#fca5a5] bg-[#3f1214] px-2.5 py-1 rounded border border-[#7f1d1d] flex items-center gap-1">
+                  <ShieldAlert className="w-3.5 h-3.5" /> {graph.fraud_rings_count} Coordinated Fraud Cluster{graph.fraud_rings_count > 1 ? 's' : ''}
                 </span>
               ) : null}
             </div>
 
-            <div className="flex items-center gap-3 text-[10px] font-mono font-semibold">
-              <span className="text-slate-400">Employees: <strong className="text-slate-200">{empCount}</strong></span>
-              <span className="text-slate-400">Banks: <strong className="text-slate-200">{bankCount}</strong></span>
-              {deptCount > 0 && <span className="text-slate-400">Depts: <strong className="text-slate-200">{deptCount}</strong></span>}
-              {devCount > 0 && <span className="text-slate-400">Devices: <strong className="text-slate-200">{devCount}</strong></span>}
-              {ipCount > 0 && <span className="text-slate-400">IPs: <strong className="text-slate-200">{ipCount}</strong></span>}
-              {mgrCount > 0 && <span className="text-slate-400">Managers: <strong className="text-slate-200">{mgrCount}</strong></span>}
+            {/* Filter & Focus Controls */}
+            <div className="flex flex-wrap items-center gap-1 bg-[#09090b] p-1 rounded border border-[#27272a] text-[11px] font-mono">
+              <button
+                onClick={() => { setFilterType('ALL'); setFocusClusterOnly(false); }}
+                className={`px-2.5 py-0.5 rounded font-semibold transition ${filterType === 'ALL' && !focusClusterOnly ? 'bg-white text-black font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+              >
+                All Nodes
+              </button>
+              <button
+                onClick={() => setFilterType('CRITICAL_RING')}
+                className={`px-2.5 py-0.5 rounded font-semibold transition ${filterType === 'CRITICAL_RING' ? 'bg-[#b91c1c] text-white font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+              >
+                Fraud Clusters
+              </button>
+              <button
+                onClick={() => setFilterType('EMPLOYEES')}
+                className={`px-2.5 py-0.5 rounded font-semibold transition ${filterType === 'EMPLOYEES' ? 'bg-[#27272a] text-white font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+              >
+                Employees ({empCount})
+              </button>
+              <button
+                onClick={() => setFilterType('BANKS')}
+                className={`px-2.5 py-0.5 rounded font-semibold transition ${filterType === 'BANKS' ? 'bg-[#27272a] text-white font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+              >
+                Banks ({bankCount})
+              </button>
+              <button
+                onClick={() => setFocusClusterOnly(!focusClusterOnly)}
+                className={`px-2.5 py-0.5 rounded font-semibold transition border flex items-center gap-1 ${
+                  focusClusterOnly ? 'bg-white text-black border-white font-bold' : 'border-[#3f3f46] text-[#a1a1aa] hover:text-white'
+                }`}
+              >
+                <Eye className="w-3 h-3" /> {focusClusterOnly ? 'Reset Focus' : 'Focus Cluster'}
+              </button>
             </div>
           </div>
 
-          {/* Dynamic Graph Nodes Canvas */}
-          <div className="my-6 relative min-h-[380px] bg-slate-950/60 rounded-lg border border-slate-800/80 p-6 flex flex-wrap items-center justify-center gap-4">
+          {/* Search Input Bar */}
+          <div className="mt-3 relative w-full">
+            <Search className="w-3.5 h-3.5 text-[#71717a] absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search node by name or account ID (e.g. Arjun, AC9001)..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#09090b] border border-[#27272a] rounded pl-9 pr-4 py-1.5 text-xs text-white focus:outline-none focus:border-white font-mono"
+            />
+          </div>
+
+          {/* 2D Interactive SVG Network Topology Canvas */}
+          <div className="my-3 relative bg-[#09090b] rounded border border-[#27272a] overflow-x-auto" style={{ minHeight: `${canvasHeight}px` }}>
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              style={{ width: '100%', height: `${canvasHeight}px` }}
+            >
+              <defs>
+                <marker id="arrow-critical" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#fca5a5" />
+                </marker>
+                <marker id="arrow-normal" viewBox="0 0 10 10" refX="18" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="#71717a" />
+                </marker>
+              </defs>
+
+              {/* Draw 2D Graph Connection Lines */}
+              {graph?.edges.map((edge) => {
+                const sourcePos = nodePositions[edge.source];
+                const targetPos = nodePositions[edge.target];
+                if (!sourcePos || !targetPos) return null;
+
+                const isConnectedToSelected = selectedNode && (edge.source === selectedNode.id || edge.target === selectedNode.id);
+                const isEdgeCritical = edge.risk_level === 'CRITICAL';
+                
+                // Dim lines not connected to selected node when a node is selected
+                const edgeOpacity = selectedNode ? (isConnectedToSelected ? 1 : 0.15) : 0.8;
+
+                return (
+                  <g key={edge.id} style={{ opacity: edgeOpacity }}>
+                    <line
+                      x1={sourcePos.x}
+                      y1={sourcePos.y}
+                      x2={targetPos.x}
+                      y2={targetPos.y}
+                      stroke={isEdgeCritical ? '#fca5a5' : '#3f3f46'}
+                      strokeWidth={isConnectedToSelected ? '3' : (isEdgeCritical ? '2' : '1')}
+                      strokeDasharray={isEdgeCritical ? 'none' : '3 3'}
+                      markerEnd={isEdgeCritical ? 'url(#arrow-critical)' : 'url(#arrow-normal)'}
+                    />
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Render Interactive 2D Graph Node Position Cards */}
             {graph?.nodes.map((node) => {
+              const pos = nodePositions[node.id];
+              if (!pos) return null;
+
+              const isVisible = filteredNodes.some(fn => fn.id === node.id);
               const isSelected = selectedNode?.id === node.id;
+              const isInSelectedCluster = activeClusterNodeIds.has(node.id);
               const isCritical = node.risk_level === 'CRITICAL';
-              const isHigh = node.risk_level === 'HIGH';
+
+              // Dim nodes outside active selection cluster
+              const nodeOpacity = selectedNode
+                ? (isSelected ? 1 : (isInSelectedCluster ? 0.9 : 0.2))
+                : (isVisible ? 1 : 0.25);
 
               return (
                 <div
                   key={node.id}
                   onClick={() => setSelectedNode(node)}
-                  className={`p-3.5 rounded-lg cursor-pointer transition-all border flex items-center gap-3 ${
-                    isSelected ? 'ring-2 ring-purple-500 scale-105 bg-slate-900 shadow-lg shadow-purple-500/10' : ''
+                  style={{
+                    position: 'absolute',
+                    left: `${pos.x}px`,
+                    top: `${pos.y}px`,
+                    transform: 'translate(-50%, -50%)',
+                    opacity: nodeOpacity
+                  }}
+                  className={`px-3 py-2 rounded cursor-pointer transition-all border flex items-center gap-2 font-mono ${
+                    isSelected ? 'ring-2 ring-white bg-white text-black z-30 font-bold shadow-lg scale-105' : ''
                   } ${
-                    isCritical
-                      ? 'bg-rose-950/30 border-rose-500/50 text-rose-200 shadow-sm shadow-rose-500/20'
-                      : isHigh
-                      ? 'bg-amber-950/20 border-amber-500/40 text-amber-200'
-                      : 'bg-slate-900/60 border-slate-800 text-slate-200 hover:border-slate-700'
+                    !isSelected && isCritical
+                      ? 'bg-[#3f1214] border-[#7f1d1d] text-[#fca5a5] z-20'
+                      : (!isSelected ? 'bg-[#18181b] border-[#27272a] text-[#fafafa] hover:border-[#3f3f46] z-10' : '')
                   }`}
                 >
-                  <div className={`w-9 h-9 rounded-md flex items-center justify-center ${
-                    isCritical ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-800 text-purple-400'
+                  <div className={`w-6 h-6 rounded flex items-center justify-center ${
+                    isSelected
+                      ? 'bg-black text-white'
+                      : (isCritical ? 'bg-[#5c1d20] text-[#fca5a5]' : 'bg-[#27272a] text-white')
                   }`}>
-                    {node.type === 'Employee' && <User className="w-4 h-4" />}
-                    {node.type === 'BankAccount' && <CreditCard className="w-4 h-4" />}
-                    {node.type === 'Device' && <Laptop className="w-4 h-4" />}
-                    {node.type === 'IPAddress' && <Cpu className="w-4 h-4" />}
-                    {node.type === 'Department' && <Building className="w-4 h-4" />}
-                    {node.type === 'Manager' && <User className="w-4 h-4 text-emerald-400" />}
+                    {node.type === 'Employee' && <User className="w-3.5 h-3.5" />}
+                    {node.type === 'BankAccount' && <CreditCard className="w-3.5 h-3.5" />}
+                    {node.type === 'Device' && <Laptop className="w-3.5 h-3.5" />}
+                    {node.type === 'IPAddress' && <Cpu className="w-3.5 h-3.5" />}
+                    {node.type === 'Department' && <Building className="w-3.5 h-3.5" />}
                   </div>
 
                   <div>
-                    <div className="text-xs font-bold">{node.label}</div>
-                    <div className="text-[10px] font-mono text-slate-400">{node.type} • {node.risk_level}</div>
+                    <div className="text-[11px] font-bold leading-tight">{node.label}</div>
+                    <div className="text-[9px] opacity-70 uppercase tracking-tighter">
+                      {node.type} {node.details?.used_by_count > 1 ? `(${node.details.used_by_count} EMPS)` : ''}
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
 
-          <div className="text-[11px] text-slate-500 flex items-center gap-1.5 font-mono">
-            <Info className="w-3.5 h-3.5" /> Click any node on the graph canvas to inspect relationships, evidence, and entity properties.
+          <div className="text-[11px] text-[#a1a1aa] flex items-center justify-between font-mono pt-2 border-t border-[#27272a]">
+            <span className="flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-white" /> Click any node to inspect relationship edges. Unrelated nodes dim automatically.
+            </span>
+            <span className="text-[#71717a]">2D Dynamic Layout Active</span>
           </div>
         </div>
 
-        {/* Dynamic Graph Node Inspector */}
-        <div className="minimal-panel p-6 space-y-5">
-          <h2 className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-border pb-3">
-            <Activity className="w-4 h-4 text-purple-400" /> Graph Node Inspector
+        {/* Graph Node Inspector Drawer */}
+        <div className="enterprise-card p-5 space-y-4">
+          <h2 className="text-xs font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2 border-b border-[#27272a] pb-3">
+            <Activity className="w-4 h-4 text-white" /> Graph Node Inspector
           </h2>
 
           {selectedNode ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Header Box */}
-              <div className="p-4 rounded-lg bg-slate-950/60 border border-slate-800">
-                <span className="text-[10px] uppercase font-mono font-bold text-purple-400">{selectedNode.type} Entity</span>
-                <h3 className="text-base font-bold text-white mt-1">{selectedNode.label}</h3>
+              <div className="p-3.5 rounded bg-[#09090b] border border-[#27272a]">
+                <span className="text-[10px] uppercase font-mono font-bold text-[#a1a1aa]">{selectedNode.type} Entity</span>
+                <h3 className="text-base font-bold text-white mt-0.5 font-mono">{selectedNode.label}</h3>
                 <div className={`mt-2 inline-flex items-center gap-1.5 text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
                   selectedNode.risk_level === 'CRITICAL'
-                    ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
-                    : (selectedNode.risk_level === 'HIGH' ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20')
+                    ? 'bg-[#3f1214] text-[#fca5a5] border-[#7f1d1d]'
+                    : 'bg-[#064e3b] text-[#6ee7b7] border-[#047857]'
                 }`}>
                   Risk Level: {selectedNode.risk_level}
                 </div>
               </div>
 
               {/* Dynamic Entity Metadata */}
-              <div className="p-4 rounded-lg bg-slate-950/40 border border-slate-800 space-y-2">
-                <span className="text-xs font-semibold text-slate-400">Ingested Entity Fields</span>
+              <div className="p-3.5 rounded bg-[#09090b] border border-[#27272a] space-y-1.5 font-mono">
+                <span className="text-xs font-semibold text-[#a1a1aa] font-sans uppercase">Ingested Entity Fields</span>
                 {Object.entries(selectedNode.details || {})
                   .filter(([k]) => k !== 'evidence' && k !== 'pattern')
                   .map(([key, val]) => (
-                    <div key={key} className="flex justify-between text-xs py-1 border-b border-slate-800/40">
-                      <span className="text-slate-400 capitalize">{key.replace(/_/g, ' ')}</span>
-                      <span className="font-mono font-medium text-slate-200">
+                    <div key={key} className="flex justify-between text-xs py-1 border-b border-[#18181b]">
+                      <span className="text-[#a1a1aa] capitalize">{key.replace(/_/g, ' ')}</span>
+                      <span className="font-medium text-white">
                         {Array.isArray(val) ? val.join(', ') : String(val || 'Data unavailable')}
                       </span>
                     </div>
@@ -176,35 +363,35 @@ export default function TrustGraphPage() {
               </div>
 
               {/* Dynamic Pattern & Evidence Box */}
-              <div className={`p-4 rounded-lg border space-y-2 ${
+              <div className={`p-3.5 rounded border space-y-2 ${
                 selectedNode.risk_level === 'CRITICAL'
-                  ? 'bg-rose-950/20 border-rose-500/30 text-rose-300'
-                  : 'bg-slate-900/60 border-slate-800 text-slate-300'
+                  ? 'bg-[#3f1214] border-[#7f1d1d] text-[#fca5a5]'
+                  : 'bg-[#09090b] border-[#27272a] text-[#f4f4f5]'
               }`}>
                 <div className="flex items-center gap-2 text-xs font-bold font-mono uppercase">
                   {selectedNode.risk_level === 'CRITICAL' ? (
                     <>
-                      <ShieldAlert className="w-4 h-4 text-rose-400" />
+                      <ShieldAlert className="w-4 h-4 text-[#fca5a5]" />
                       <span>{selectedNode.details?.pattern || 'Coordinated Fraud Ring Pattern'}</span>
                     </>
                   ) : (
                     <>
-                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                      <ShieldCheck className="w-4 h-4 text-[#6ee7b7]" />
                       <span>{selectedNode.details?.pattern || 'Standard Verified Relationship'}</span>
                     </>
                   )}
                 </div>
 
-                <div className="space-y-1 mt-2">
-                  <span className="text-[10px] font-mono font-semibold uppercase text-slate-400">Supporting Evidence</span>
+                <div className="space-y-1 mt-1.5">
+                  <span className="text-[10px] font-mono font-semibold uppercase text-[#a1a1aa]">Supporting Evidence</span>
                   {selectedNode.details?.evidence && Array.isArray(selectedNode.details.evidence) ? (
                     selectedNode.details.evidence.map((ev: string, idx: number) => (
-                      <div key={idx} className="text-xs text-slate-300 flex items-start gap-1.5 font-mono">
-                        <span className="text-purple-400">•</span> {ev}
+                      <div key={idx} className="text-xs text-[#f4f4f5] flex items-start gap-1.5 font-mono">
+                        <span className="text-white">•</span> {ev}
                       </div>
                     ))
                   ) : (
-                    <div className="text-xs text-slate-400 font-mono">
+                    <div className="text-xs text-[#a1a1aa] font-mono">
                       {selectedNode.type === 'BankAccount'
                         ? (selectedNode.details?.used_by_count > 1 ? `Shared by ${selectedNode.details?.used_by_count} employees.` : 'Unique payment destination. No shared-account anomaly detected.')
                         : 'Verified relationship topology link.'}
@@ -214,7 +401,7 @@ export default function TrustGraphPage() {
               </div>
             </div>
           ) : (
-            <div className="text-center text-slate-500 py-12 text-xs font-mono">Select a node from the canvas to inspect entity properties</div>
+            <div className="text-center text-[#71717a] py-12 text-xs font-mono">Select a node from the canvas to inspect entity properties</div>
           )}
         </div>
       </div>

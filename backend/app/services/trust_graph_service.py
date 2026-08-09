@@ -21,7 +21,7 @@ class TrustGraphService:
         for r in records:
             emp_id = str(r.get("id"))
             emp_name = f"{r.get('first_name', '')} {r.get('last_name', '')}".strip() or emp_id
-            bank = str(r.get("bank_account_no", "")).strip()
+            bank = str(r.get("bank_account_no", "")).strip() if r.get("bank_account_no") else None
             dept = r.get("department")
             manager_id = r.get("manager_id")
             device_id = r.get("device_id")
@@ -181,26 +181,21 @@ class TrustGraphService:
             if node_type in ["BankAccount", "Device", "IPAddress"] and len(emp_neighbors) >= 2:
                 fraud_rings_count += 1
                 
-                # Mark Node as CRITICAL Risk
+                # Mark Infrastructure Node as CRITICAL Risk
                 if node in nodes_dict:
                     nodes_dict[node]["risk_level"] = "CRITICAL"
                     connected_names = nodes_dict[node]["details"].get("employees", [nodes_dict[e]["details"]["name"] for e in emp_neighbors if e in nodes_dict])
                     
                     # Update inspector details for Shared Bank Account
-                    nodes_dict[node]["details"]["pattern"] = "Shared payment destination (Coordinated Cluster)"
+                    nodes_dict[node]["details"]["pattern"] = f"Shared payment destination (Cluster of {len(connected_names)} employees)"
                     nodes_dict[node]["details"]["evidence"] = [
                         f"{len(connected_names)} employees share single payment destination {nodes_dict[node]['label']}",
                         f"Connected employees: {', '.join(connected_names)}",
                         "Coordinated payroll fraud cluster pattern detected"
                     ]
 
-                # Elevate risk level for all connected Employee nodes and Edges
+                # Elevate risk level for Edges connecting to shared node
                 for emp_node in emp_neighbors:
-                    if emp_node in nodes_dict:
-                        # Check if employee has other anomalies (e.g. 0 attendance)
-                        emp_risk = nodes_dict[emp_node]["details"].get("risk_score", "0")
-                        nodes_dict[emp_node]["risk_level"] = "CRITICAL"
-                        
                     for edge in edges_list:
                         if (edge["source"] == emp_node and edge["target"] == node) or (edge["source"] == node and edge["target"] == emp_node):
                             edge["risk_level"] = "CRITICAL"

@@ -5,32 +5,32 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, UploadCloud, Users, Network, Search, ShieldCheck } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Executive Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Upload & Ingest', href: '/upload', icon: UploadCloud },
   { name: 'Payroll Batches', href: '/overview', icon: Users },
-  { name: 'Trust Graph', href: '/trust-graph', icon: Network },
-  { name: 'Investigation Hub', href: '/investigation', icon: Search },
-  { name: 'Firewall & Reports', href: '/reports', icon: ShieldCheck },
+  { name: 'Trust Graph Workspace', href: '/trust-graph', icon: Network },
+  { name: 'AI Investigation Hub', href: '/investigation', icon: Search },
+  { name: 'Firewall & Audit PDF', href: '/reports', icon: ShieldCheck },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-[#050505] border-r border-[#262626] min-h-screen p-4 flex flex-col justify-between select-none">
+    <aside className="w-60 bg-[#121215] border-r border-[#27272a] min-h-screen p-4 flex flex-col justify-between select-none z-30">
       <div>
-        {/* Minimalist Monochromatic Brand Header */}
-        <div className="flex items-center gap-3 px-2 py-4 mb-6 border-b border-[#262626]">
-          <div className="w-9 h-9 rounded-lg bg-[#171717] border border-[#333333] flex items-center justify-center text-white">
-            <ShieldCheck className="w-5 h-5" />
+        {/* Solid Enterprise Brand Header */}
+        <div className="flex items-center gap-2.5 px-2 py-3 mb-5 border-b border-[#27272a]">
+          <div className="w-7 h-7 rounded bg-[#27272a] border border-[#3f3f46] flex items-center justify-center text-white font-mono font-bold text-xs">
+            P
           </div>
           <div>
-            <h1 className="font-bold text-base text-white tracking-tight">PAYCERTUS</h1>
-            <p className="text-[10px] text-neutral-400 font-mono font-semibold tracking-wider uppercase">Enterprise AI</p>
+            <h1 className="font-bold text-sm text-white tracking-tight">PAYCERTUS</h1>
+            <p className="text-[10px] text-[#a1a1aa] font-mono font-medium tracking-wider uppercase">Enterprise Platform</p>
           </div>
         </div>
 
-        {/* Minimalist Monochromatic Navigation Items */}
+        {/* Navigation Items */}
         <nav className="space-y-1">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -40,27 +40,29 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
                   isActive
-                    ? 'bg-white text-black shadow-sm font-bold'
-                    : 'text-neutral-400 hover:text-white hover:bg-[#171717]'
+                    ? 'bg-[#27272a] text-white font-semibold'
+                    : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-black' : 'text-neutral-500'}`} />
-                {item.name}
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#71717a]'}`} />
+                <span>{item.name}</span>
               </Link>
             );
           })}
         </nav>
       </div>
 
-      {/* Minimalist Monochromatic Footer Status */}
-      <div className="p-3 bg-[#0a0a0a] rounded-lg border border-[#262626] text-[11px]">
-        <div className="flex items-center justify-between text-neutral-400 mb-1">
-          <span className="font-medium">Security Engine</span>
-          <span className="text-white font-mono font-bold">ONLINE</span>
+      {/* Engine Status Footer */}
+      <div className="p-3 bg-[#18181b] rounded-md border border-[#27272a] text-[11px]">
+        <div className="flex items-center justify-between text-[#a1a1aa] mb-1">
+          <span className="font-medium">Engine Status</span>
+          <span className="text-[#6ee7b7] font-mono font-bold text-[10px] bg-[#064e3b] px-1.5 py-0.5 rounded border border-[#047857]">
+            ACTIVE
+          </span>
         </div>
-        <div className="text-neutral-500 text-[10px] font-mono">v1.0 • PayCertus Platform</div>
+        <div className="text-[#71717a] text-[10px] font-mono">v1.0 • Solid Enterprise Engine</div>
       </div>
     </aside>
   );

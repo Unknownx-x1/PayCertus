@@ -1,5 +1,5 @@
 export interface RiskFinding {
-  id: str;
+  id: string;
   batch_id: string;
   employee_id?: string;
   employee_name?: string;
@@ -17,13 +17,20 @@ export interface SalaryTransaction {
   batch_id: string;
   employee_id: string;
   employee_name: string;
-  department: string;
+  department?: string;
   gross_salary: number;
   net_salary: number;
   overtime_hours: number;
   overtime_pay: number;
   reimbursements: number;
   attendance_days: number;
+  bank_account_no?: string;
+  manager_id?: string;
+  device_id?: string;
+  ip_address?: string;
+  rule_contrib?: number;
+  ml_contrib?: number;
+  graph_contrib?: number;
   risk_score: number;
   status: 'APPROVED' | 'FLAG_REVIEW' | 'HOLD' | 'BLOCKED';
 }
@@ -34,9 +41,13 @@ export interface PayrollBatch {
   period_start: string;
   period_end: string;
   total_amount: number;
+  approved_amount?: number;
+  held_amount?: number;
+  blocked_amount?: number;
   total_employees: number;
   integrity_score: number;
-  status: 'APPROVED' | 'PENDING_REVIEW' | 'HELD' | 'BLOCKED';
+  status: 'APPROVED' | 'PENDING_REVIEW' | 'FLAGGED' | 'HELD' | 'PARTIAL_HOLD' | 'BLOCKED';
+  proof_hash?: string;
   processed_at?: string;
   transactions?: SalaryTransaction[];
   risk_findings?: RiskFinding[];

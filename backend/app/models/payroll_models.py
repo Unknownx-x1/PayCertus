@@ -28,9 +28,13 @@ class PayrollBatch(Base):
     period_start = Column(String, nullable=False)
     period_end = Column(String, nullable=False)
     total_amount = Column(Float, default=0.0)
+    approved_amount = Column(Float, default=0.0)
+    held_amount = Column(Float, default=0.0)
+    blocked_amount = Column(Float, default=0.0)
     total_employees = Column(Integer, default=0)
     integrity_score = Column(Integer, default=100)
-    status = Column(String, default="PENDING_REVIEW") # PENDING_REVIEW, HELD, BLOCKED, APPROVED
+    status = Column(String, default="PENDING_REVIEW") # PENDING_REVIEW, HELD, BLOCKED, APPROVED, PARTIAL_HOLD
+    proof_hash = Column(String, nullable=True)
     processed_at = Column(DateTime, default=datetime.utcnow)
     
     transactions = relationship("SalaryTransaction", back_populates="batch", cascade="all, delete-orphan")
@@ -50,6 +54,13 @@ class SalaryTransaction(Base):
     overtime_pay = Column(Float, default=0.0)
     reimbursements = Column(Float, default=0.0)
     attendance_days = Column(Integer, default=22)
+    bank_account_no = Column(String, nullable=True)
+    manager_id = Column(String, nullable=True)
+    device_id = Column(String, nullable=True)
+    ip_address = Column(String, nullable=True)
+    rule_contrib = Column(Integer, default=0)
+    ml_contrib = Column(Integer, default=0)
+    graph_contrib = Column(Integer, default=0)
     risk_score = Column(Integer, default=0) # 0-100 individual risk
     status = Column(String, default="APPROVED") # APPROVED, FLAG_REVIEW, BLOCKED, HOLD
     

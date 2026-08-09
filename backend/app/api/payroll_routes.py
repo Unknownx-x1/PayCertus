@@ -37,17 +37,17 @@ def get_batch_trust_graph(batch_id: str, db: Session = Depends(get_db)):
         records.append({
             "id": tx.employee_id,
             "first_name": tx.employee_name.split()[0] if tx.employee_name else "Emp",
-            "last_name": " ".join(tx.employee_name.split()[1:]) if len(tx.employee_name.split()) > 1 else "",
+            "last_name": " ".join(tx.employee_name.split()[1:]) if (tx.employee_name and len(tx.employee_name.split()) > 1) else "",
             "department": tx.department if tx.department != "Data unavailable" else None,
-            "job_title": tx.employee.job_title if tx.employee else None,
+            "job_title": None,
             "gross_salary": tx.gross_salary,
             "overtime_hours": tx.overtime_hours,
             "attendance_days": tx.attendance_days,
-            "bank_account_no": tx.employee.bank_account_no if (tx.employee and tx.employee.bank_account_no) else f"AC{tx.employee_id}",
-            "bank_name": tx.employee.bank_name if tx.employee else None,
-            "manager_id": tx.employee.manager_id if tx.employee else None,
-            "device_id": tx.employee.device_id if tx.employee else None,
-            "ip_address": tx.employee.ip_address if tx.employee else None,
+            "bank_account_no": tx.bank_account_no,
+            "bank_name": None,
+            "manager_id": tx.manager_id,
+            "device_id": tx.device_id,
+            "ip_address": tx.ip_address,
             "risk_score": tx.risk_score
         })
         

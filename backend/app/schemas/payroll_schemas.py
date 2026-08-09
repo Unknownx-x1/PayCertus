@@ -7,11 +7,11 @@ class EmployeeSchema(BaseModel):
     first_name: str
     last_name: str
     email: str
-    department: str
-    job_title: str
+    department: Optional[str] = None
+    job_title: Optional[str] = None
     base_salary: float
     bank_account_no: str
-    bank_name: str
+    bank_name: Optional[str] = None
     manager_id: Optional[str] = None
     device_id: Optional[str] = None
     ip_address: Optional[str] = None
@@ -37,13 +37,20 @@ class SalaryTransactionSchema(BaseModel):
     batch_id: str
     employee_id: str
     employee_name: str
-    department: str
+    department: Optional[str] = "Data unavailable"
     gross_salary: float
     net_salary: float
     overtime_hours: float
     overtime_pay: float
     reimbursements: float
     attendance_days: int
+    bank_account_no: Optional[str] = None
+    manager_id: Optional[str] = None
+    device_id: Optional[str] = None
+    ip_address: Optional[str] = None
+    rule_contrib: Optional[int] = 0
+    ml_contrib: Optional[int] = 0
+    graph_contrib: Optional[int] = 0
     risk_score: int
     status: str
 
@@ -56,9 +63,13 @@ class PayrollBatchSchema(BaseModel):
     period_start: str
     period_end: str
     total_amount: float
+    approved_amount: Optional[float] = 0.0
+    held_amount: Optional[float] = 0.0
+    blocked_amount: Optional[float] = 0.0
     total_employees: int
     integrity_score: int
     status: str
+    proof_hash: Optional[str] = None
     processed_at: Optional[datetime] = None
     transactions: Optional[List[SalaryTransactionSchema]] = []
     risk_findings: Optional[List[RiskFindingSchema]] = []

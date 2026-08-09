@@ -3,6 +3,8 @@ import pandas as pd
 from typing import List, Dict, Any, Tuple
 from sqlalchemy.orm import Session
 from app.models.payroll_models import PayrollBatch, SalaryTransaction, RiskFinding, Employee
+from app.services.validation_service import ValidationService
+from app.services.crypto_service import CryptoService
 from app.services.rule_engine import RuleEngineService
 from app.services.ml_anomaly_engine import MLAnomalyEngineService
 from app.services.trust_graph_service import TrustGraphService
@@ -21,12 +23,12 @@ def get_flex_val(row: Dict[str, Any], aliases: List[str], default: Any = None) -
 class IngestionService:
     """
     Strict Data Ingestion Engine & Pipeline Orchestrator
-    Parses ingested CSV rows, strictly preserves available fields, avoids inventing fake data,
+    Parses ingested CSV rows, strictly preserves available fields, enforces validation & cryptographic hashing,
     triggers Rule Engine, ML Anomaly Engine, Trust Graph Engine, computes PIS, and saves to DB.
     """
 
     @staticmethod
-    def process_payroll_data(raw_records: List[Dict[str, Any]], batch_name: str, db: Session) -> Tuple[PayrollBatch, Dict[str, Any], str]:
+    def process_payroll_data(raw_records: List[Dict[str, Any]], batch_name: str, db: Session) -> Tuple[PayrollBatch, Dict[str, Any], str, List[str]]:
         batch_id = f"batch-{uuid.uuid4().hex[:8]}"
         
         # 1. Cleanse & Normalize Records strictly from ingested payload
@@ -34,7 +36,6 @@ class IngestionService:
         for idx, r in enumerate(raw_records):
             emp_id = str(get_flex_val(r, ["id", "employee_id", "empid", "emp_id", "code"], f"E{101+idx}"))
             
-            # Handle full name or first/last name
             full_name = get_flex_val(r, ["full_name", "employee_name", "name", "employee"])
             if full_name and isinstance(full_name, str) and full_name.strip():
                 parts = full_name.strip().split()
@@ -111,26 +112,43 @@ class IngestionService:
             }
             cleaned_records.append(record)
 
-        # 2. Run Layer 1: Rule Engine
+        # 2. Run Data Validation
+        is_valid, validation_errors, validation_warnings = ValidationService.validate_records(cleaned_records)
+        if not is_valid:
+            raise ValueError(f"CSV Pre-Ingestion Data Integrity Failure: {'; '.join(validation_errors)}")
+
+        # 3. Generate Canonical Cryptographic Proof Hash
+        proof_hash = CryptoService.generate_batch_proof(cleaned_records)
+
+        # 4. Run Layer 1: Rule Engine
         rule_findings = RuleEngineService.evaluate(cleaned_records, batch_id)
         
-        # 3. Run Layer 2: ML Anomaly Engine
+        # 5. Run Layer 2: ML Anomaly Engine
         ml_findings = MLAnomalyEngineService.evaluate(cleaned_records, batch_id)
         
-        # 4. Run Layer 3: Trust Graph Engine
-        graph_payload, graph_findings = TrustGraphService.build_graph_and_detect(cleaned_records, batch_id)
+        # 6. Run Layer 3: Trust Graph Engine (Initial detection)
+        _, graph_findings = TrustGraphService.build_graph_and_detect(cleaned_records, batch_id)
         
-        # Combine all findings
+        # Combine all findings from all 3 analytical layers
         all_findings = rule_findings + ml_findings + graph_findings
         
-        # 5. Run Layer 4: Risk Scoring & PIS Score
-        pis_score, batch_status = RiskScoringService.calculate_batch_integrity(all_findings, len(cleaned_records))
+        # 7. Run Layer 4: Risk Scoring Engine
         scored_records = RiskScoringService.calculate_employee_risk_scores(cleaned_records, all_findings)
+        res = RiskScoringService.calculate_batch_integrity(all_findings, scored_records)
         
-        # 6. Run Layer 5: Explainable LLM Narrative
+        pis_score = res.pis_score
+        batch_status = res.status
+        app_amt = res.approved_amount
+        held_amt = res.held_amount
+        block_amt = res.blocked_amount
+
+        # Re-build final Trust Graph payload using scored records
+        graph_payload, _ = TrustGraphService.build_graph_and_detect(scored_records, batch_id)
+
+        # 8. Run Layer 5: Explainable LLM Narrative
         llm_narrative = LLMExplainerService.generate_narrative(batch_name, pis_score, all_findings)
         
-        # 7. Persist to Database
+        # 9. Persist to Database
         total_amount = sum(r["gross_salary"] for r in scored_records)
         
         batch = PayrollBatch(
@@ -139,9 +157,13 @@ class IngestionService:
             period_start="2026-08-01",
             period_end="2026-08-31",
             total_amount=total_amount,
+            approved_amount=app_amt,
+            held_amount=held_amt,
+            blocked_amount=block_amt,
             total_employees=len(scored_records),
             integrity_score=pis_score,
-            status=batch_status
+            status=batch_status,
+            proof_hash=proof_hash
         )
         db.add(batch)
         
@@ -178,6 +200,13 @@ class IngestionService:
                 overtime_pay=r["overtime_pay"],
                 reimbursements=r["reimbursements"],
                 attendance_days=r["attendance_days"],
+                bank_account_no=r["bank_account_no"],
+                manager_id=r["manager_id"],
+                device_id=r["device_id"],
+                ip_address=r["ip_address"],
+                rule_contrib=r.get("rule_contribution", 0),
+                ml_contrib=r.get("ml_contribution", 0),
+                graph_contrib=r.get("graph_contribution", 0),
                 risk_score=r["risk_score"],
                 status=r["status"]
             )
@@ -202,4 +231,4 @@ class IngestionService:
         db.commit()
         db.refresh(batch)
         
-        return batch, graph_payload, llm_narrative
+        return batch, graph_payload, llm_narrative, validation_warnings
