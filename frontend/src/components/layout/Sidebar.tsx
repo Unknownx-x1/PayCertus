@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, UploadCloud, Users, Network, Search, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Building2, UploadCloud, Users, Network, Search, ShieldCheck } from 'lucide-react';
 
 const NAV_ITEMS = [
   { name: 'Executive Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'HR Portal Simulator', href: '/hr-simulator', icon: Building2 },
   { name: 'Upload & Ingest', href: '/upload', icon: UploadCloud },
   { name: 'Payroll Batches', href: '/overview', icon: Users },
   { name: 'Trust Graph Workspace', href: '/trust-graph', icon: Network },
