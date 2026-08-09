@@ -94,103 +94,100 @@ export default function TrustGraphPage() {
     return set;
   }, [graph]);
 
-  // 2D Network Node Position Layout Engine
-  const nodePositions = useMemo(() => {
-    if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return {};
-
-    const positions: Record<string, { x: number; y: number }> = {};
-    const empNodes = graph.nodes.filter(n => n && n.type === 'Employee');
-    const bankNodes = graph.nodes.filter(n => n && n.type === 'BankAccount');
-    const otherNodes = graph.nodes.filter(n => n && n.type !== 'Employee' && n.type !== 'BankAccount');
-
-    // Layout Employee Nodes in Column A (Left)
-    empNodes.forEach((node, idx) => {
-      if (node && node.id) {
-        positions[node.id] = {
-          x: 140,
-          y: 40 + idx * 46
-        };
-      }
-    });
-
-    // Layout Bank Account Nodes in Column B (Right)
-    let bankIdx = 0;
-    bankNodes.forEach((node) => {
-      if (!node || !node.id) return;
-      const connEdges = graph.edges.filter(e => e && (e.target === node.id || e.source === node.id));
-      const connEmpIds = connEdges.map(e => e.source === node.id ? e.target : e.source);
-
-      if (connEmpIds.length >= 2) {
-        // Shared bank account cluster: position centrally aligned to its connected employees
-        const empYs = connEmpIds.map(eid => positions[eid]?.y).filter(Boolean);
-        const avgY = empYs.length > 0 ? empYs.reduce((a, b) => a + b, 0) / empYs.length : 240;
-        positions[node.id] = { x: 580, y: avgY };
-      } else {
-        // Unique bank account: position aligned to its single connected employee
-        const empId = connEmpIds[0];
-        if (empId && positions[empId]) {
-          positions[node.id] = { x: 580, y: positions[empId].y };
-        } else {
-          positions[node.id] = { x: 580, y: 50 + bankIdx * 65 };
-          bankIdx++;
-        }
-      }
-    });
-
-    // Layout optional entity nodes (Devices, IPs, Depts, Managers) if present in dataset
-    otherNodes.forEach((node, idx) => {
-      if (node && node.id) {
-        positions[node.id] = { x: 360, y: 80 + idx * 60 };
-      }
-    });
-
-    return positions;
-  }, [graph]);
-
-  // Compute Node Opacity & Highlight State for Filter Toggles
-  const getNodeVisualStatus = (nodeId: string, nodeType: string, riskLevel: string, label: string) => {
+  // Node Visibility Filter Logic - returns true if node should be visible
+  const isNodeVisible = (nodeId: string, nodeType: string, riskLevel: string, label: string) => {
     // 1. Search Query Filter
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase().trim();
-      const matches = label.toLowerCase().includes(query) || nodeType.toLowerCase().includes(query);
-      return { isHighlighted: matches, opacity: matches ? 1 : 0.15 };
+      return label.toLowerCase().includes(query) || nodeType.toLowerCase().includes(query);
     }
 
     // 2. Focus Cluster Only Mode
     if (focusClusterOnly && selectedNode) {
-      const isInCluster = activeClusterNodeIds.has(nodeId);
-      return { isHighlighted: isInCluster, opacity: isInCluster ? 1 : 0.15 };
+      return activeClusterNodeIds.has(nodeId);
     }
 
-    // 3. Filter Type Toggles (Fraud Clusters, Employees, Banks, All)
+    // 3. Filter Type Toggles
     if (filterType === 'CRITICAL_RING') {
-      const isFraudClusterNode = criticalClusterNodeIds.has(nodeId);
-      return { isHighlighted: isFraudClusterNode, opacity: isFraudClusterNode ? 1 : 0.15 };
+      return criticalClusterNodeIds.has(nodeId);
     }
 
     if (filterType === 'EMPLOYEES') {
-      const isEmp = nodeType === 'Employee';
-      return { isHighlighted: isEmp, opacity: isEmp ? 1 : 0.25 };
+      return nodeType === 'Employee';
     }
 
     if (filterType === 'BANKS') {
-      const isBank = nodeType === 'BankAccount';
-      return { isHighlighted: isBank, opacity: isBank ? 1 : 0.25 };
+      return nodeType === 'BankAccount';
     }
 
-    // 4. Default 'ALL' Mode
-    if (selectedNode) {
-      const isSelected = selectedNode.id === nodeId;
-      const isInCluster = activeClusterNodeIds.has(nodeId);
-      return { isHighlighted: isSelected || isInCluster, opacity: isSelected ? 1 : (isInCluster ? 0.9 : 0.35) };
-    }
-
-    return { isHighlighted: true, opacity: 1 };
+    return true; // 'ALL' mode
   };
+
+  // Visible nodes list based on current active filter
+  const visibleNodes = useMemo(() => {
+    if (!graph || !Array.isArray(graph.nodes)) return [];
+    return graph.nodes.filter(n => n && isNodeVisible(n.id, n.type, n.risk_level, n.label));
+  }, [graph, searchQuery, filterType, focusClusterOnly, selectedNode, activeClusterNodeIds, criticalClusterNodeIds]);
+
+  // 2D Network Node Position Layout Engine (re-calculates position dynamically for filtered nodes)
+  const nodePositions = useMemo(() => {
+    if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return {};
+
+    const positions: Record<string, { x: number; y: number }> = {};
+    const empNodes = visibleNodes.filter(n => n && n.type === 'Employee');
+    const bankNodes = visibleNodes.filter(n => n && n.type === 'BankAccount');
+    const otherNodes = visibleNodes.filter(n => n && n.type !== 'Employee' && n.type !== 'BankAccount');
+
+    if (filterType === 'EMPLOYEES') {
+      // Single Column Centered Layout for Employees mode
+      empNodes.forEach((node, idx) => {
+        positions[node.id] = { x: 360, y: 40 + idx * 46 };
+      });
+    } else if (filterType === 'BANKS') {
+      // Single Column Centered Layout for Banks mode
+      bankNodes.forEach((node, idx) => {
+        positions[node.id] = { x: 360, y: 40 + idx * 52 };
+      });
+    } else {
+      // Standard Dual-Column Topology Layout for All & Fraud Clusters modes
+      empNodes.forEach((node, idx) => {
+        positions[node.id] = { x: 140, y: 40 + idx * 46 };
+      });
+
+      let bankIdx = 0;
+      bankNodes.forEach((node) => {
+        const connEdges = graph.edges.filter(e => e && (e.target === node.id || e.source === node.id));
+        const connEmpIds = connEdges.map(e => e.source === node.id ? e.target : e.source);
+
+        if (connEmpIds.length >= 2) {
+          const empYs = connEmpIds.map(eid => positions[eid]?.y).filter(Boolean);
+          const avgY = empYs.length > 0 ? empYs.reduce((a, b) => a + b, 0) / empYs.length : 240;
+          positions[node.id] = { x: 580, y: avgY };
+        } else {
+          const empId = connEmpIds[0];
+          if (empId && positions[empId]) {
+            positions[node.id] = { x: 580, y: positions[empId].y };
+          } else {
+            positions[node.id] = { x: 580, y: 50 + bankIdx * 65 };
+            bankIdx++;
+          }
+        }
+      });
+
+      otherNodes.forEach((node, idx) => {
+        positions[node.id] = { x: 360, y: 80 + idx * 60 };
+      });
+    }
+
+    return positions;
+  }, [graph, visibleNodes, filterType]);
 
   const empCount = graph && Array.isArray(graph.nodes) ? graph.nodes.filter(n => n && n.type === 'Employee').length : 0;
   const bankCount = graph && Array.isArray(graph.nodes) ? graph.nodes.filter(n => n && n.type === 'BankAccount').length : 0;
-  const canvasHeight = Math.max(500, empCount * 48 + 40);
+  const visibleEmpCount = visibleNodes.filter(n => n.type === 'Employee').length;
+  const visibleBankCount = visibleNodes.filter(n => n.type === 'BankAccount').length;
+  
+  const canvasHeight = Math.max(500, (filterType === 'EMPLOYEES' ? visibleEmpCount : (filterType === 'BANKS' ? visibleBankCount : empCount)) * 48 + 50);
 
   return (
     <div className="space-y-5 max-w-7xl mx-auto select-none">
@@ -210,7 +207,7 @@ export default function TrustGraphPage() {
             setSelectedBatchId(e.target.value);
             loadGraphData(e.target.value);
           }}
-          className="bg-[#18181b] border border-[#27272a] text-white text-xs font-mono font-semibold rounded px-3 py-2 outline-none focus:border-white"
+          className="bg-[#18181b] border border-[#27272a] text-white text-xs font-mono font-semibold rounded px-3 py-2 outline-none focus:border-white cursor-pointer"
         >
           {batches.map(b => (
             <option key={b.id} value={b.id}>
@@ -228,7 +225,7 @@ export default function TrustGraphPage() {
           <div className="flex flex-wrap justify-between items-center gap-3 z-10 border-b border-[#27272a] pb-3">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono font-bold text-white bg-[#27272a] px-2.5 py-1 rounded border border-[#3f3f46]">
-                Nodes: {graph?.nodes.length || 0} • Edges: {graph?.edges.length || 0}
+                Showing: {visibleNodes.length} / {graph?.nodes.length || 0} Nodes
               </span>
               {graph?.fraud_rings_count ? (
                 <span className="text-[10px] font-mono font-bold text-[#fca5a5] bg-[#3f1214] px-2.5 py-1 rounded border border-[#7f1d1d] flex items-center gap-1">
@@ -240,32 +237,37 @@ export default function TrustGraphPage() {
             {/* Filter & Focus Controls */}
             <div className="flex flex-wrap items-center gap-1 bg-[#09090b] p-1 rounded border border-[#27272a] text-[11px] font-mono">
               <button
+                type="button"
                 onClick={() => { setFilterType('ALL'); setFocusClusterOnly(false); setSearchQuery(''); }}
-                className={`px-2.5 py-1 rounded font-semibold transition ${filterType === 'ALL' && !focusClusterOnly && searchQuery === '' ? 'bg-white text-black font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+                className={`px-2.5 py-1 rounded font-semibold transition cursor-pointer ${filterType === 'ALL' && !focusClusterOnly && searchQuery === '' ? 'bg-white text-black font-bold shadow' : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'}`}
               >
                 All Nodes
               </button>
               <button
+                type="button"
                 onClick={() => { setFilterType('CRITICAL_RING'); setFocusClusterOnly(false); }}
-                className={`px-2.5 py-1 rounded font-semibold transition ${filterType === 'CRITICAL_RING' ? 'bg-[#b91c1c] text-white font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+                className={`px-2.5 py-1 rounded font-semibold transition cursor-pointer ${filterType === 'CRITICAL_RING' ? 'bg-[#b91c1c] text-white font-bold shadow' : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'}`}
               >
                 Fraud Clusters
               </button>
               <button
+                type="button"
                 onClick={() => { setFilterType('EMPLOYEES'); setFocusClusterOnly(false); }}
-                className={`px-2.5 py-1 rounded font-semibold transition ${filterType === 'EMPLOYEES' ? 'bg-[#27272a] text-white font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+                className={`px-2.5 py-1 rounded font-semibold transition cursor-pointer ${filterType === 'EMPLOYEES' ? 'bg-white text-black font-bold shadow' : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'}`}
               >
                 Employees ({empCount})
               </button>
               <button
+                type="button"
                 onClick={() => { setFilterType('BANKS'); setFocusClusterOnly(false); }}
-                className={`px-2.5 py-1 rounded font-semibold transition ${filterType === 'BANKS' ? 'bg-[#27272a] text-white font-bold' : 'text-[#a1a1aa] hover:text-white'}`}
+                className={`px-2.5 py-1 rounded font-semibold transition cursor-pointer ${filterType === 'BANKS' ? 'bg-white text-black font-bold shadow' : 'text-[#a1a1aa] hover:text-white hover:bg-[#18181b]'}`}
               >
                 Banks ({bankCount})
               </button>
               <button
+                type="button"
                 onClick={handleResetFilters}
-                className="px-2.5 py-1 rounded font-semibold transition border border-[#3f3f46] text-[#a1a1aa] hover:text-white hover:bg-[#27272a] flex items-center gap-1"
+                className="px-2.5 py-1 rounded font-semibold transition border border-[#3f3f46] text-[#a1a1aa] hover:text-white hover:bg-[#27272a] flex items-center gap-1 cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3 text-[#38bdf8]" /> Reset Filters
               </button>
@@ -305,20 +307,17 @@ export default function TrustGraphPage() {
                 const targetPos = nodePositions[edge.target];
                 if (!sourcePos || !targetPos) return null;
 
-                const sourceNode = graph.nodes.find(n => n.id === edge.source);
-                const targetNode = graph.nodes.find(n => n.id === edge.target);
-                if (!sourceNode || !targetNode) return null;
-
-                const sourceStatus = getNodeVisualStatus(sourceNode.id, sourceNode.type, sourceNode.risk_level, sourceNode.label);
-                const targetStatus = getNodeVisualStatus(targetNode.id, targetNode.type, targetNode.risk_level, targetNode.label);
+                const isSourceVisible = visibleNodes.some(fn => fn.id === edge.source);
+                const isTargetVisible = visibleNodes.some(fn => fn.id === edge.target);
+                if (!isSourceVisible || !isTargetVisible) return null;
 
                 const isConnectedToSelected = selectedNode && (edge.source === selectedNode.id || edge.target === selectedNode.id);
                 const isEdgeCritical = edge.risk_level === 'CRITICAL';
                 
-                const lineOpacity = Math.min(sourceStatus.opacity, targetStatus.opacity);
+                const edgeOpacity = selectedNode ? (isConnectedToSelected ? 1 : 0.2) : 0.8;
 
                 return (
-                  <g key={edge.id} style={{ opacity: lineOpacity }}>
+                  <g key={edge.id} style={{ opacity: edgeOpacity }}>
                     <line
                       x1={sourcePos.x}
                       y1={sourcePos.y}
@@ -335,13 +334,17 @@ export default function TrustGraphPage() {
             </svg>
 
             {/* Render Interactive 2D Graph Node Position Cards */}
-            {graph?.nodes.map((node) => {
+            {visibleNodes.map((node) => {
               const pos = nodePositions[node.id];
               if (!pos) return null;
 
-              const visualStatus = getNodeVisualStatus(node.id, node.type, node.risk_level, node.label);
               const isSelected = selectedNode?.id === node.id;
+              const isInSelectedCluster = activeClusterNodeIds.has(node.id);
               const isCritical = node.risk_level === 'CRITICAL';
+
+              const nodeOpacity = selectedNode
+                ? (isSelected ? 1 : (isInSelectedCluster ? 0.9 : 0.35))
+                : 1;
 
               return (
                 <div
@@ -352,7 +355,7 @@ export default function TrustGraphPage() {
                     left: `${pos.x}px`,
                     top: `${pos.y}px`,
                     transform: 'translate(-50%, -50%)',
-                    opacity: visualStatus.opacity
+                    opacity: nodeOpacity
                   }}
                   className={`px-3 py-2 rounded cursor-pointer transition-all border flex items-center gap-2 font-mono ${
                     isSelected ? 'ring-2 ring-white bg-white text-black z-30 font-bold shadow-lg scale-105' : ''
@@ -387,9 +390,9 @@ export default function TrustGraphPage() {
 
           <div className="text-[11px] text-[#a1a1aa] flex items-center justify-between font-mono pt-2 border-t border-[#27272a]">
             <span className="flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-white" /> Click any node to inspect relationship edges. Unrelated nodes dim automatically.
+              <Info className="w-3.5 h-3.5 text-white" /> Click any node to inspect relationship edges. Filter buttons isolate nodes in real-time.
             </span>
-            <span className="text-[#71717a]">2D Dynamic Layout Active</span>
+            <span className="text-[#71717a]">Dynamic Filter Topology Active</span>
           </div>
         </div>
 
