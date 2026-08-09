@@ -1,6 +1,6 @@
-# 🛡️ PayCertus — Enterprise AI Payroll Integrity & Risk Intelligence Platform
+# 🛡️ PayCertus — Enterprise AI Payroll Integrity & Fraud Detection Platform
 
-> **Continuous Pre-Disbursement Fraud Prevention, Enterprise Trust Graph Analytics & Explainable AI Security Layer**
+> **Continuous Pre-Disbursement Fraud Prevention, Enterprise Trust Graph Analytics, Cryptographic Audit Proofs & Explainable AI Security Layer**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -13,69 +13,84 @@
 
 ## 📌 Executive Summary
 
-**PayCertus** is an AI-powered payroll integrity platform operating as a continuous security layer between Human Resource Management Systems (HRMS / ERP software such as Workday, SAP SuccessFactors, BambooHR) and payroll disbursement gateways.
+**PayCertus** (formerly Payroll Sentinel) is an industry-grade payroll fraud detection and payroll integrity platform operating as a continuous security firewall between Human Resource Management Systems (HRMS / ERP software such as Workday, SAP SuccessFactors, BambooHR) and payroll disbursement gateways.
 
-Unlike traditional payroll software that prioritizes batch processing efficiency and relies on static retrospective audits, **Payroll Sentinel continuously evaluates payroll data before salary payments leave the organization**. 
+Unlike traditional payroll tools that rely on retrospective, post-disbursement audits, **PayCertus continuously evaluates payroll batches before funds leave the enterprise**.
 
-The platform produces a composite **Payroll Integrity Score (PIS)**, isolates hidden collusion rings via an **Enterprise Trust Graph**, generates **explainable AI audit narratives**, and enforces automated or manual **Payroll Firewall** holds/blocks on high-risk cycles.
+The platform calculates a composite **Payroll Integrity Score (PIS)**, generates canonical **SHA-256 Cryptographic Batch Proofs**, isolates hidden collusion rings via an **Enterprise Trust Graph**, generates **explainable AI audit evidence**, and enforces automated or manual **Payroll Firewall** holds/blocks on high-risk disbursement cycles.
 
 ```
-[ HRMS / ERP Data ] ──► [ Data Ingestion & Cleansing ]
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │ Multi-Layer Risk Engine   │
-                    ├───────────────────────────┤
-                    │ 1. Deterministic Rules    │
-                    │ 2. Statistical / ML (IF) │
-                    │ 3. Enterprise Trust Graph │
-                    └─────────────┬─────────────┘
-                                  │
-                                  ▼
-                    ┌───────────────────────────┐
-                    │  Payroll Integrity Score  │
-                    │      & LLM Explainer      │
-                    └─────────────┬─────────────┘
-                                  │
-                                  ▼
-             ┌────────────────────┴────────────────────┐
-             ▼                                         ▼
-   [ PIS >= 90: Trusted ]                     [ PIS < 70: High Risk / Critical ]
-             │                                         │
-             ▼                                         ▼
-  { Auto Salary Release }                 { Payroll Firewall Hold/Block }
-                                                       │
-                                                       ▼
-                                            { Investigation Hub UX }
+[ HRMS / ERP Data Upload ] ──► [ Pre-Ingestion Data Validation ]
+                                          │
+                                          ▼
+                               [ SHA-256 Cryptographic Proof ]
+                                          │
+                                          ▼
+                       ┌─────────────────────────────────────┐
+                       │   5-Layer Intelligence Pipeline     │
+                       ├─────────────────────────────────────┤
+                       │ 1. Deterministic Rule Engine        │
+                       │ 2. Statistical ML (ANOMALY ≠ FRAUD) │
+                       │ 3. Enterprise Trust Graph Topology  │
+                       │ 4. Risk Engine (Deterministic Score)│
+                       │ 5. Explainable AI Narrative         │
+                       └──────────────────┬──────────────────┘
+                                          │
+                                          ▼
+                       ┌─────────────────────────────────────┐
+                       │  Payroll Integrity Score (PIS) &    │
+                       │   Financial Exposure Breakdown      │
+                       └──────────────────┬──────────────────┘
+                                          │
+                                          ▼
+              ┌───────────────────────────┴───────────────────────────┐
+              ▼                                                       ▼
+  [ Approved / Safe Cycles ]                             [ High-Risk / Blocked Cycles ]
+              │                                                       │
+              ▼                                                       ▼
+   { Auto Salary Release }                             { Payroll Firewall Gatekeeper }
+                                                                      │
+                                                                      ▼
+                                                            { 5-Layer Forensic Dossier }
+                                                            {  Audit PDF Exporter      }
 ```
 
 ---
 
-## ✨ Key Innovations & Value Proposition
+## ✨ Key Enterprise Capabilities
 
-1. **Pre-Payment Fraud Prevention**: Identifies ghost employees, salary spikes, duplicate reimbursements, and collusion *before* disbursement occurs.
-2. **Enterprise Trust Graph**: Models multi-entity connections (`Employee`, `BankAccount`, `Device`, `Manager`, `IPAddress`) to expose hidden fraud rings that isolated rule checks miss.
-3. **Multi-Layer Detection Pipeline**: Combines deterministic rules, unsupervised machine learning (`IsolationForest`, `Z-Score`), and graph centrality metrics.
-4. **Explainable AI (XAI)**: Translates complex multivariate risk scores into natural language audit evidence suitable for auditors and finance officers.
-5. **Non-Disruptive API Layer**: Integrates smoothly with existing payroll gateways without requiring enterprises to replace core ERP software.
+1. **Pre-Disbursement Fraud Prevention**: Detects ghost employees, salary spikes, duplicate reimbursement claims, zero-attendance full payouts, and shared account collusion *before* payment execution.
+2. **Canonical Cryptographic Proofs**: Generates deterministic SHA-256 proof hashes (`sha256:...`) from canonicalized batch data payloads for immutable regulatory compliance.
+3. **Strict Data-Driven Trust Graph**: Builds 2D topology networks strictly from ingested dataset fields. Never fabricates entities (`Manager`, `Device`, `IPAddress`) unless explicitly present in source CSV data.
+4. **ANOMALY ≠ FRAUD Distinction**: Employs unsupervised machine learning (`Isolation Forest`, `Z-Score`) to flag mathematical distribution outliers against peer baselines without falsely asserting fraud intent without supporting policy rules or graph evidence.
+5. **Deterministic Multi-Layer Risk Engine**: Aggregates weighted risk contributions (`Rule + ML + Graph = Final Employee Risk`) using centralized governance thresholds (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
+6. **Financial Exposure Breakdown**: Computes exact monetary risk distribution (`Approved Amount`, `Held Amount`, `Blocked Amount`) and supports `PARTIAL_HOLD` batch firewall decisions.
+7. **Compliance Audit Exporter**: Generates printable HTML/PDF compliance reports equipped with cryptographic proof hashes, multi-layer evidence lists, and employee forensic dossiers.
 
 ---
 
-## 🔍 Multi-Layer Detection Pipeline Breakdown
+## 🔍 5-Layer Analytical Pipeline Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        DATA INGESTION & CLEANSING                      │
+│               PRE-INGESTION DATA VALIDATION & CLEANSING                │
+│       (Validates required fields, duplicate IDs, numeric bounds)       │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+                                    ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                   SHA-256 CRYPTOGRAPHIC PROOF HASH                     │
+│         (Generates canonical hash for immutable audit trail)           │
 └───────────────────────────────────┬────────────────────────────────────┘
                                     │
     ┌───────────────────────────────┼───────────────────────────────┐
     ▼                               ▼                               ▼
 ┌───────────────────────┐ ┌───────────────────────┐ ┌───────────────────────┐
-│ 1. RULE ENGINE        │ │ 2. ANOMALY ENGINE     │ │ 3. TRUST GRAPH ENGINE │
-│ - Duplicate Bank Accs │ │ - Isolation Forest    │ │ - Graph Centrality    │
-│ - Ghost Employee IDs  │ │ - LOF Outlier Detection│ │ - Multi-Entity Ring  │
-│ - Unauth Salary Bump  │ │ - Z-Score Analysis    │ │ - Shared IP/Device    │
-│ - Missing Attendance  │ │ (Salary, OT, Claims)  │ │   Collusion Cluster   │
+│ 1. RULE ENGINE        │ │ 2. STATISTICAL ML     │ │ 3. TRUST GRAPH ENGINE │
+│ - Shared Bank Accounts│ │ - Isolation Forest    │ │ - Graph Centrality    │
+│ - Ghost Employee IDs  │ │ - Baseline Comparison │ │ - Degree Analytics    │
+│ - Overtime Spikes     │ │ - Feature Deviations  │ │ - Shared Destination  │
+│ - Zero Att Full Pay   │ │ (ANOMALY ≠ FRAUD)     │ │   Collusion Cluster   │
 └───────────┬───────────┘ └───────────┬───────────┘ └───────────┬───────────┘
             │                         │                         │
             └─────────────────────────┼─────────────────────────┘
@@ -83,15 +98,16 @@ The platform produces a composite **Payroll Integrity Score (PIS)**, isolates hi
                                       ▼
                         ┌───────────────────────────┐
                         │ 4. RISK SCORING ENGINE    │
-                        │ Aggregates Weighted Risk  │
-                        │ Outputs PIS (0 - 100)     │
+                        │ Aggregates Score Points   │
+                        │ Outputs Employee Risk &   │
+                        │ Batch PIS Score (0 - 100) │
                         └─────────────┬─────────────┘
                                       │
                                       ▼
                         ┌───────────────────────────┐
                         │ 5. LLM EXPLAINER SERVICE  │
-                        │ Generates Audit Evidence  │
-                        │ & Executive Narrative     │
+                        │ Generates Natural Language│
+                        │ Executive Audit Evidence  │
                         └───────────────────────────┘
 ```
 
@@ -101,26 +117,47 @@ Executes explicit compliance policy checks:
 - **R2_UNAUTHORIZED_GHOST_EMPLOYEE**: Detects newly created employees (< 7 days before payroll) lacking manager authorization or attendance logs.
 - **R3_EXCESSIVE_OVERTIME_SPIKE**: Identifies overtime claims exceeding policy thresholds (>40h/cycle).
 - **R4_ZERO_ATTENDANCE_FULL_PAY**: Identifies 0 logged working days accompanied by full base pay release.
-- **R5_UNAUTHORIZED_LARGE_REIMBURSEMENT**: Flags unverified high-value expense claims.
-- **R6_MISSING_APPROVALS**: Detects missing multi-tier management sign-offs.
+- **R5_UNAUTHORIZED_LARGE_REIMBURSEMENT**: Flags unverified expense claims exceeding threshold limits ($2,500).
 
-### Layer 2: Machine Learning Anomaly Engine (`ml_anomaly_engine.py`)
-- **Isolation Forest & Local Outlier Factor (LOF)**: Unsupervised multivariate anomaly detection on numerical attributes (gross pay, overtime pay, reimbursements, attendance ratio).
-- **Departmental Z-Score Outlier Analysis**: Identifies compensation deviations where $|Z| > 2.5$ relative to department benchmarks.
+### Layer 2: Statistical Machine Learning Engine (`ml_anomaly_engine.py`)
+- **Isolation Forest & Z-Score Distribution**: Unsupervised multivariate anomaly detection on numerical feature vectors (gross pay, overtime hours, reimbursements, attendance days).
+- **Peer Baseline Comparison**: Compares employee metrics against **Department Peer Baselines** (when department data exists) or **Batch-Level Baselines**.
+- **Core Principle: ANOMALY ≠ FRAUD**: Statistical outlier detection flags unusual distribution metrics, but does not independently establish fraudulent intent without supporting policy rules or graph evidence.
 
 ### Layer 3: Enterprise Trust Graph Engine (`trust_graph_service.py`)
-- **Topology Network**: Nodes (`Employee`, `Manager`, `BankAccount`, `Device`, `IPAddress`, `Department`) linked by edges (`REPORTS_TO`, `PAID_TO`, `USES_DEVICE`, `LOGGED_FROM_IP`).
-- **Fraud Ring Detection**: Connected component analysis and degree centrality algorithms isolate shared infrastructure nodes used by multiple employees.
+- **Topology Network**: Nodes (`Employee`, `BankAccount`, and optional `Manager`, `Device`, `IPAddress`, `Department`) linked by relationships (`PAID_TO`, `BELONGS_TO`, `REPORTS_TO`, `USES_DEVICE`).
+- **Fraud Ring Cluster Detection**: Connected component analysis and degree centrality algorithms isolate shared infrastructure destinations used by multiple employees.
+- **Visual Canvas UX**: Interactive 2D layout with relationship dimming (`opacity: 0.2` for unrelated nodes), cluster focus mode, and data-driven node inspector.
 
-### Layer 4: Risk Engine & Payroll Integrity Score (PIS) (`risk_scoring_service.py`)
-Calculates a unified composite score $PIS \in [0, 100]$:
-- `90 – 100` 🟢 **Trusted**: Auto-approved for salary disbursement.
-- `70 – 89` 🟡 **Review Recommended**: Flagged for Finance review.
-- `40 – 69` 🟠 **High Risk / Hold**: Placed on hold; requires Auditor sign-off.
-- `0 – 39` 🔴 **Critical / Blocked**: Automatically blocked by the Payroll Firewall.
+### Layer 4: Deterministic Risk Engine (`risk_scoring_service.py`)
+Calculates employee risk scores ($Risk \in [0, 100]$) and composite Batch Integrity Scores ($PIS \in [0, 100]$):
+- **Employee Risk Governance**:
+  - `0 – 34` 🟢 **LOW**: `APPROVED`
+  - `35 – 59` 🟡 **MEDIUM**: `FLAG_REVIEW`
+  - `60 – 74` 🟠 **HIGH**: `HOLD`
+  - `75 – 100` 🔴 **CRITICAL**: `BLOCKED`
+- **Batch Firewall Status**: `APPROVED`, `FLAGGED`, `PARTIAL_HOLD`, `BLOCKED`.
 
 ### Layer 5: Explainable AI Narrative Engine (`llm_explainer.py`)
-Outputs structured, natural language audit evidence summaries detailing exact root-cause evidence and confidence scores.
+Generates natural language executive summaries grounded strictly in empirical findings returned by the analytical pipeline.
+
+---
+
+## 📊 100-Employee Benchmark Verification (`payroll_sentinel_large_test_batch_100.csv`)
+
+The platform includes a 100-employee benchmark dataset for system auditing:
+
+| Metric | Benchmark Target | System Output | Status |
+| :--- | :--- | :--- | :--- |
+| **Total Payroll Value** | `$8,681,000.00` | `$8,681,000.00` | ✅ Verified |
+| **Total Employees** | `100` | `100` | ✅ Verified |
+| **Unique Bank Accounts** | `89` | `89` | ✅ Verified |
+| **Graph Nodes** | `189` (100 Emps + 89 Banks) | `189` | ✅ Verified |
+| **Graph Edges** | `100` (`PAID_TO` edges) | `100` | ✅ Verified |
+| **Fabricated Nodes** | `0` (No Manager/Device/IP) | `0` | ✅ Verified |
+| **Primary Fraud Ring** | `AC9001` (5 Employees) | `AC9001 (5 EMPS)` | ✅ Verified |
+| **Secondary Ring** | `AC9100` (3 Employees) | `AC9100 (3 EMPS)` | ✅ Verified |
+| **Proof Hash** | Deterministic SHA-256 | `sha256:...` | ✅ Verified |
 
 ---
 
@@ -129,7 +166,8 @@ Outputs structured, natural language audit evidence summaries detailing exact ro
 ```
 payroll_fintech/
 ├── README.md                           # Enterprise documentation & system guide
-├── docker-compose.yml                  # Container orchestration manifest
+├── payroll_sentinel_large_test_batch_100.csv # 100-employee benchmark dataset
+├── .gitignore
 │
 ├── backend/                            # Python FastAPI Microservices
 │   ├── app/
@@ -138,10 +176,8 @@ payroll_fintech/
 │   │   ├── database.py                 # SQLAlchemy session engine
 │   │   ├── mock_data.py                # Pre-seeded clean & fraud ring datasets
 │   │   ├── models/                     # Database ORM Tables
-│   │   │   ├── __init__.py
 │   │   │   └── payroll_models.py       # Employee, Batch, Transaction, RiskFinding, AuditLog
 │   │   ├── schemas/                    # Pydantic Request/Response DTOs
-│   │   │   ├── __init__.py
 │   │   │   └── payroll_schemas.py
 │   │   ├── api/                        # REST API Router Endpoints
 │   │   │   ├── router.py
@@ -149,16 +185,17 @@ payroll_fintech/
 │   │   │   ├── payroll_routes.py       # Batch details, graph API & firewall
 │   │   │   └── audit_routes.py         # Audit logs & PDF/HTML exporter
 │   │   └── services/                   # 5-Layer Intelligence Pipeline Logic
+│   │       ├── validation_service.py   # CSV Pre-Ingestion Data Integrity Engine
+│   │       ├── crypto_service.py       # SHA-256 Cryptographic Proof Generator
 │   │       ├── ingestion_service.py    # Pipeline orchestrator & data cleanser
 │   │       ├── rule_engine.py          # Deterministic policy rules
 │   │       ├── ml_anomaly_engine.py    # Isolation Forest & Z-Score ML models
 │   │       ├── trust_graph_service.py  # NetworkX topology & ring detector
-│   │       ├── risk_scoring_service.py # PIS score calculator
+│   │       ├── risk_scoring_service.py # Risk score breakdown & PIS calculator
 │   │       └── llm_explainer.py        # Explainable AI narrative generator
-│   ├── tests/
-│   │   ├── __init__.py
-│   │   └── test_pipeline.py            # Pytest test suite for clean vs fraud runs
-│   └── requirements.txt
+│   └── tests/
+│       ├── test_pipeline.py            # Pytest test suite for clean vs fraud runs
+│       └── test_100_employee_batch.py  # Automated 100-employee benchmark test
 │
 └── frontend/                           # Next.js 14 App Router Frontend
     ├── src/
@@ -169,19 +206,18 @@ payroll_fintech/
     │   │   ├── overview/page.tsx       # Employee Risk Table & Transaction Filter
     │   │   ├── trust-graph/page.tsx    # Interactive 2D Graph Visualizer & Inspector
     │   │   ├── investigation/page.tsx  # AI Fraud Investigation Hub
-    │   │   ├── reports/page.tsx        # Payroll Firewall Controls & Audit PDF Exporter
-    │   │    font/
-    │   │   └── globals.css             # Glassmorphism dark UI theme
+    │   │   └── reports/page.tsx        # Payroll Firewall Controls & Audit Exporter
     │   ├── components/                 # Component Library
     │   │   └── layout/
     │   │       ├── Header.tsx
     │   │       └── Sidebar.tsx
-    │   └── lib/                        # API Client & Types
+    │   └── lib/                        # API Client & Exporters
     │       ├── api.ts                  # Axios/Fetch client with offline fallback
+    │       ├── exportReport.ts         # Standalone HTML/PDF Compliance Exporter
     │       └── types.ts                # TypeScript interfaces
     ├── package.json
-    ├── tailwind.config.ts
-    └── next.config.mjs
+    ├── postcss.config.js
+    └── tailwind.config.ts
 ```
 
 ---
@@ -191,15 +227,14 @@ payroll_fintech/
 | Layer | Component | Technology |
 | :--- | :--- | :--- |
 | **Frontend** | Framework | Next.js 14+, React 18, TypeScript |
-| | UI & Styling | Tailwind CSS, Glassmorphism Vanilla CSS, Lucide Icons |
-| | Data Visualization | Recharts (Trend & Bar Charts), Interactive HTML5 Canvas Graph |
+| | UI & Styling | Tailwind CSS, Solid Enterprise Dark Theme, Lucide Icons |
+| | Visualizations | 2D SVG Topology Canvas, Interactive Node Inspector |
 | **Backend** | API Server | Python FastAPI (Async ASGI framework) |
 | | ORM & Database | SQLAlchemy, SQLite (Development) / PostgreSQL (Production) |
-| | Data Validation | Pydantic v2, Pydantic-Settings |
-| **Analytics & ML** | ML Anomaly Models | Scikit-learn (`IsolationForest`), Pandas, NumPy |
-| | Graph Engine | NetworkX (In-Memory Graph Topology & Centrality) |
-| | AI Explainer | Modular LLM Provider (OpenAI / Gemini / Template Engine) |
-| **Testing** | Unit & Integration | Pytest |
+| | Cryptography | Python `hashlib` (SHA-256 Batch Hashing) |
+| **Analytics & ML** | ML Anomaly Models | Scikit-learn (`IsolationForest`), NumPy, Pandas |
+| | Graph Engine | NetworkX (In-Memory Topology & Degree Centrality) |
+| **Testing** | Automated Suite | Pytest 9.0+ |
 
 ---
 
@@ -209,7 +244,7 @@ payroll_fintech/
 - **Python 3.10+**
 - **Node.js 18+** and **npm**
 
-### 2. Backend Setup & Local Server Execution
+### 2. Backend Setup & Server Execution
 ```bash
 # Navigate to backend directory
 cd backend
@@ -233,15 +268,15 @@ cd frontend
 npm install
 
 # Start Next.js development server
-npm run dev
+npm run dev -- -p 3000
 ```
 - Web Application URL: `http://localhost:3000`
 
 ---
 
-## 🧪 Running Automated Unit Tests
+## 🧪 Running Automated Test Suite
 
-Run the backend 5-layer pipeline test suite directly from the root repository directory:
+Run the full backend test suite directly from the root repository directory:
 
 ```powershell
 $env:PYTHONPATH="backend"; python -m pytest backend/tests
@@ -249,31 +284,11 @@ $env:PYTHONPATH="backend"; python -m pytest backend/tests
 
 **Expected Output:**
 ```text
-collected 2 items
+collected 3 items
+backend\tests\test_100_employee_batch.py .                               [ 33%]
 backend\tests\test_pipeline.py ..                                        [100%]
-============================== 2 passed in 1.70s ==============================
+======================= 3 passed in 2.02s =======================
 ```
-
----
-
-## 🎮 Recommended Interactive Demo Walkthrough
-
-Once both servers are running (`localhost:8000` and `localhost:3000`):
-
-1. **Executive Dashboard** (`http://localhost:3000`): Observe the live Payroll Integrity Score (PIS) gauge and KPI metrics.
-2. **Upload & Ingest** (`/upload`): Click **⚡ Load Fraud Ring Alert Preset**.
-3. **Payroll Batches & Employee Risk Table** (`/overview`): Inspect employee risk scores (0-100), overtime pay, and flagged policy breaches.
-4. **Enterprise Trust Graph Workspace** (`/trust-graph`): Explore the interactive 2D graph canvas displaying connected employees, shared offshore bank accounts, and device rings. Click any node to open the Detail Inspector drawer.
-5. **AI Investigation Hub** (`/investigation`): Read the AI-generated audit narrative and evidence payload.
-6. **Payroll Firewall & Audit Reports** (`/reports`): Enforce a Firewall **Block** or click **Print / Export Audit Report** to generate a printable compliance PDF.
-
----
-
-## 🔒 Security & Compliance Controls
-
-- **Role-Based Access Control (RBAC)**: Strict role separation for HR Administrators, Finance Officers, Internal Auditors, and Security Administrators.
-- **Immutable Audit Logging**: Every firewall action (`APPROVE`, `HOLD`, `BLOCK`) is cryptographically logged in the database audit history.
-- **Data Protection**: Zero raw bank password retention; hashed payment account identifier matching.
 
 ---
 
