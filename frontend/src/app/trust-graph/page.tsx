@@ -19,34 +19,49 @@ export default function TrustGraphPage() {
   }, []);
 
   async function loadBatches() {
-    const data = await fetchBatches();
-    setBatches(data);
-    if (data.length > 0) {
-      const targetId = data[0].id;
-      setSelectedBatchId(targetId);
-      loadGraphData(targetId);
+    try {
+      const data = await fetchBatches();
+      if (Array.isArray(data) && data.length > 0) {
+        setBatches(data);
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryBatchId = urlParams.get('batch');
+        const targetId = (queryBatchId && data.some(b => b.id === queryBatchId)) ? queryBatchId : data[0].id;
+        setSelectedBatchId(targetId);
+        await loadGraphData(targetId);
+      }
+    } catch (err) {
+      console.warn('Error loading batches in TrustGraphPage:', err);
     }
   }
 
   async function loadGraphData(batchId: string) {
-    const g = await fetchGraph(batchId);
-    setGraph(g);
-    if (g.nodes.length > 0) {
-      const ringNode = g.nodes.find(n => n.label.includes('AC9001') || n.risk_level === 'CRITICAL');
-      setSelectedNode(ringNode || g.nodes[0]);
+    if (!batchId) return;
+    try {
+      const g = await fetchGraph(batchId);
+      if (g && Array.isArray(g.nodes) && Array.isArray(g.edges)) {
+        setGraph(g);
+        if (g.nodes.length > 0) {
+          const ringNode = g.nodes.find(n => (n.label && n.label.includes('AC9001')) || n.risk_level === 'CRITICAL');
+          setSelectedNode(ringNode || g.nodes[0]);
+        } else {
+          setSelectedNode(null);
+        }
+      }
+    } catch (err) {
+      console.warn('Error loading graph data in TrustGraphPage:', err);
     }
   }
 
   // Connected nodes and edges map for relationship dimming & cluster isolation
   const activeClusterNodeIds = useMemo(() => {
-    if (!selectedNode || !graph) return new Set<string>();
+    if (!selectedNode || !graph || !Array.isArray(graph.edges)) return new Set<string>();
 
     const connectedIds = new Set<string>();
     connectedIds.add(selectedNode.id);
 
     graph.edges.forEach(edge => {
-      if (edge.source === selectedNode.id) connectedIds.add(edge.target);
-      if (edge.target === selectedNode.id) connectedIds.add(edge.source);
+      if (edge && edge.source === selectedNode.id) connectedIds.add(edge.target);
+      if (edge && edge.target === selectedNode.id) connectedIds.add(edge.source);
     });
 
     return connectedIds;
@@ -54,25 +69,28 @@ export default function TrustGraphPage() {
 
   // 2D Network Node Position Layout Engine
   const nodePositions = useMemo(() => {
-    if (!graph || !graph.nodes) return {};
+    if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return {};
 
     const positions: Record<string, { x: number; y: number }> = {};
-    const empNodes = graph.nodes.filter(n => n.type === 'Employee');
-    const bankNodes = graph.nodes.filter(n => n.type === 'BankAccount');
-    const otherNodes = graph.nodes.filter(n => n.type !== 'Employee' && n.type !== 'BankAccount');
+    const empNodes = graph.nodes.filter(n => n && n.type === 'Employee');
+    const bankNodes = graph.nodes.filter(n => n && n.type === 'BankAccount');
+    const otherNodes = graph.nodes.filter(n => n && n.type !== 'Employee' && n.type !== 'BankAccount');
 
     // Layout Employee Nodes in Column A (Left)
     empNodes.forEach((node, idx) => {
-      positions[node.id] = {
-        x: 140,
-        y: 40 + idx * 46
-      };
+      if (node && node.id) {
+        positions[node.id] = {
+          x: 140,
+          y: 40 + idx * 46
+        };
+      }
     });
 
     // Layout Bank Account Nodes in Column B (Right)
     let bankIdx = 0;
     bankNodes.forEach((node) => {
-      const connEdges = graph.edges.filter(e => e.target === node.id || e.source === node.id);
+      if (!node || !node.id) return;
+      const connEdges = graph.edges.filter(e => e && (e.target === node.id || e.source === node.id));
       const connEmpIds = connEdges.map(e => e.source === node.id ? e.target : e.source);
 
       if (connEmpIds.length >= 2) {
@@ -94,7 +112,9 @@ export default function TrustGraphPage() {
 
     // Layout optional entity nodes (Devices, IPs, Depts, Managers) if present in dataset
     otherNodes.forEach((node, idx) => {
-      positions[node.id] = { x: 360, y: 80 + idx * 60 };
+      if (node && node.id) {
+        positions[node.id] = { x: 360, y: 80 + idx * 60 };
+      }
     });
 
     return positions;
@@ -102,14 +122,17 @@ export default function TrustGraphPage() {
 
   // Filtered nodes based on user search & filter toggle
   const filteredNodes = useMemo(() => {
-    if (!graph) return [];
+    if (!graph || !Array.isArray(graph.nodes)) return [];
     return graph.nodes.filter(n => {
+      if (!n) return false;
       if (focusClusterOnly && selectedNode) {
         if (!activeClusterNodeIds.has(n.id)) return false;
       }
 
-      const matchesSearch = n.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        n.type.toLowerCase().includes(searchQuery.toLowerCase());
+      const label = n.label || '';
+      const type = n.type || '';
+      const matchesSearch = label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        type.toLowerCase().includes(searchQuery.toLowerCase());
       if (!matchesSearch) return false;
 
       if (filterType === 'CRITICAL_RING') return n.risk_level === 'CRITICAL';
@@ -119,8 +142,8 @@ export default function TrustGraphPage() {
     });
   }, [graph, searchQuery, filterType, focusClusterOnly, selectedNode, activeClusterNodeIds]);
 
-  const empCount = graph?.nodes.filter(n => n.type === 'Employee').length || 0;
-  const bankCount = graph?.nodes.filter(n => n.type === 'BankAccount').length || 0;
+  const empCount = graph && Array.isArray(graph.nodes) ? graph.nodes.filter(n => n && n.type === 'Employee').length : 0;
+  const bankCount = graph && Array.isArray(graph.nodes) ? graph.nodes.filter(n => n && n.type === 'BankAccount').length : 0;
   const canvasHeight = Math.max(500, empCount * 48 + 40);
 
   return (

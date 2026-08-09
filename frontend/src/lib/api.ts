@@ -177,7 +177,10 @@ export async function fetchBatches(): Promise<PayrollBatch[]> {
   try {
     const res = await fetch(`${API_BASE_URL}/payroll/batches`, { cache: 'no-store' });
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        return data;
+      }
     }
   } catch (e) {
     console.warn('Backend API connection offline, utilizing fallback state.', e);
@@ -189,7 +192,10 @@ export async function fetchBatchById(id: string): Promise<PayrollBatch> {
   try {
     const res = await fetch(`${API_BASE_URL}/payroll/batches/${id}`, { cache: 'no-store' });
     if (res.ok) {
-      return await res.json();
+      const data = await res.json();
+      if (data && data.id) {
+        return data;
+      }
     }
   } catch (e) {
     console.warn('Backend API connection offline, utilizing fallback state.', e);
@@ -199,9 +205,14 @@ export async function fetchBatchById(id: string): Promise<PayrollBatch> {
 
 export async function fetchGraph(batchId: string): Promise<GraphPayload> {
   try {
-    const res = await fetch(`${API_BASE_URL}/payroll/batches/${batchId}/graph`, { cache: 'no-store' });
-    if (res.ok) {
-      return await res.json();
+    if (batchId) {
+      const res = await fetch(`${API_BASE_URL}/payroll/batches/${batchId}/graph`, { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.nodes) && Array.isArray(data.edges)) {
+          return data;
+        }
+      }
     }
   } catch (e) {
     console.warn('Backend API graph endpoint offline, computing graph dynamically from batch records.', e);
@@ -227,11 +238,11 @@ export async function fetchGraph(batchId: string): Promise<GraphPayload> {
       details: {
         employee_id: t.employee_id,
         name: t.employee_name,
-        salary: `$${t.gross_salary.toLocaleString()}`,
-        overtime: `${t.overtime_hours} hrs`,
-        attendance: `${t.attendance_days} days`,
+        salary: `$${(t.gross_salary || 0).toLocaleString()}`,
+        overtime: `${t.overtime_hours || 0} hrs`,
+        attendance: `${t.attendance_days || 22} days`,
         bank_account: bank,
-        risk_score: `${t.risk_score} / 100`
+        risk_score: `${t.risk_score || 0} / 100`
       }
     });
   });
