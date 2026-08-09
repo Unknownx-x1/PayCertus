@@ -1,37 +1,49 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
-from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models.payroll_models import AuditLog, PayrollBatch, RiskFinding
+from app.models.payroll_models import AUDIT_LOGS_COLLECTION, PAYROLL_BATCHES_COLLECTION, RISK_FINDINGS_COLLECTION
 
 router = APIRouter(prefix="/audit", tags=["Audit & Compliance Reports"])
 
 @router.get("/logs")
-def get_audit_logs(db: Session = Depends(get_db)):
-    """Fetch immutable audit investigation log history."""
-    logs = db.query(AuditLog).order_by(AuditLog.timestamp.desc()).all()
+def get_audit_logs(db = Depends(get_db)):
+    """Fetch immutable audit investigation log history from MongoDB."""
+    cursor = db[AUDIT_LOGS_COLLECTION].find({}, {"_id": 0}).sort("timestamp", -1)
+    logs = list(cursor)
     return logs
 
 @router.get("/reports/{batch_id}/html", response_class=HTMLResponse)
-def generate_audit_report_html(batch_id: str, db: Session = Depends(get_db)):
+def generate_audit_report_html(batch_id: str, db = Depends(get_db)):
     """Generate printable compliance-ready HTML/PDF audit summary report."""
-    batch = db.query(PayrollBatch).filter(PayrollBatch.id == batch_id).first()
+    batch = db[PAYROLL_BATCHES_COLLECTION].find_one({"id": batch_id}, {"_id": 0})
     if not batch:
         raise HTTPException(status_code=404, detail="Payroll batch not found")
         
-    findings = db.query(RiskFinding).filter(RiskFinding.batch_id == batch_id).all()
+    findings = list(db[RISK_FINDINGS_COLLECTION].find({"batch_id": batch_id}, {"_id": 0}))
     
     findings_html = ""
     for f in findings:
-        badge_color = "#ef4444" if f.severity == "CRITICAL" else ("#f97316" if f.severity == "HIGH" else "#eab308")
+        severity = f.get("severity", "LOW")
+        title = f.get("title", "")
+        description = f.get("description", "")
+        layer = f.get("layer", "")
+        rule_code = f.get("rule_code", "")
+        
+        badge_color = "#ef4444" if severity == "CRITICAL" else ("#f97316" if severity == "HIGH" else "#eab308")
         findings_html += f"""
         <div style="background: #1e293b; border-left: 4px solid {badge_color}; padding: 12px; margin-bottom: 12px; border-radius: 4px; color: #f8fafc;">
-            <div style="font-weight: bold; font-size: 16px;">[{f.severity}] {f.title}</div>
-            <div style="font-size: 14px; color: #94a3b8; margin-top: 4px;">{f.description}</div>
-            <div style="font-size: 12px; color: #cbd5e1; margin-top: 6px;"><b>Layer:</b> {f.layer} | <b>Rule Code:</b> {f.rule_code}</div>
+            <div style="font-weight: bold; font-size: 16px;">[{severity}] {title}</div>
+            <div style="font-size: 14px; color: #94a3b8; margin-top: 4px;">{description}</div>
+            <div style="font-size: 12px; color: #cbd5e1; margin-top: 6px;"><b>Layer:</b> {layer} | <b>Rule Code:</b> {rule_code}</div>
         </div>
         """
         
+    b_status = batch.get("status", "PENDING_REVIEW")
+    b_name = batch.get("batch_name", "Payroll Batch")
+    b_score = batch.get("integrity_score", 100)
+    b_emps = batch.get("total_employees", 0)
+    b_amount = batch.get("total_amount", 0.0)
+    
     html_content = f"""
     <!DOCTYPE html>
     <html>
@@ -52,26 +64,26 @@ def generate_audit_report_html(batch_id: str, db: Session = Depends(get_db)):
                 <p style="margin: 4px 0 0 0; color: #94a3b8;">Enterprise Payroll Integrity & Compliance Audit Report</p>
             </div>
             <div>
-                <span class="{ 'badge-blocked' if batch.status in ['BLOCKED', 'HELD'] else 'badge-approved' }">{batch.status}</span>
+                <span class="{ 'badge-blocked' if b_status in ['BLOCKED', 'HELD'] else 'badge-approved' }">{b_status}</span>
             </div>
         </div>
 
         <div class="card" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
             <div>
                 <div style="color: #94a3b8; font-size: 14px;">BATCH NAME</div>
-                <div style="font-size: 18px; font-weight: bold; margin-top: 4px;">{batch.batch_name}</div>
+                <div style="font-size: 18px; font-weight: bold; margin-top: 4px;">{b_name}</div>
             </div>
             <div>
                 <div style="color: #94a3b8; font-size: 14px;">INTEGRITY SCORE (PIS)</div>
-                <div class="metric" style="color: { '#ef4444' if batch.integrity_score < 40 else ('#f97316' if batch.integrity_score < 70 else '#22c55e') };">{batch.integrity_score}/100</div>
+                <div class="metric" style="color: { '#ef4444' if b_score < 40 else ('#f97316' if b_score < 70 else '#22c55e') };">{b_score}/100</div>
             </div>
             <div>
                 <div style="color: #94a3b8; font-size: 14px;">TOTAL EMPLOYEES</div>
-                <div class="metric">{batch.total_employees}</div>
+                <div class="metric">{b_emps}</div>
             </div>
             <div>
                 <div style="color: #94a3b8; font-size: 14px;">TOTAL PAYROLL VALUE</div>
-                <div class="metric" style="color: #38bdf8;">${batch.total_amount:,.2f}</div>
+                <div class="metric" style="color: #38bdf8;">${b_amount:,.2f}</div>
             </div>
         </div>
 
@@ -79,7 +91,7 @@ def generate_audit_report_html(batch_id: str, db: Session = Depends(get_db)):
         {findings_html if findings else '<p style="color: #22c55e;">No risk findings recorded for this batch.</p>'}
 
         <div style="margin-top: 40px; padding-top: 16px; border-top: 1px solid #334155; color: #64748b; font-size: 12px; text-align: center;">
-            Generated by PayCertus AI Layer | Cryptographic Audit ID: {batch.id}
+            Generated by PayCertus AI Layer (MongoDB Store) | Cryptographic Audit ID: {batch.get('id')}
         </div>
     </body>
     </html>

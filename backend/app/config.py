@@ -6,8 +6,9 @@ class Settings(BaseSettings):
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
-    # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./payroll_sentinel.db")
+    # MongoDB Database Settings
+    MONGODB_URL: str = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
+    MONGODB_DB_NAME: str = os.getenv("MONGODB_DB_NAME", "payroll_sentinel")
     
     # Security
     SECRET_KEY: str = os.getenv("SECRET_KEY", "payroll_sentinel_enterprise_secret_key_2026")
@@ -20,5 +21,7 @@ class Settings(BaseSettings):
     
     class Config:
         case_sensitive = True
+        env_file = ".env"
+        env_file_encoding = "utf-8"
 
 settings = Settings()

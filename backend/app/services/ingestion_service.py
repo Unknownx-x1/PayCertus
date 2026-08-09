@@ -1,8 +1,17 @@
 import uuid
 import pandas as pd
+from datetime import datetime
 from typing import List, Dict, Any, Tuple
-from sqlalchemy.orm import Session
-from app.models.payroll_models import PayrollBatch, SalaryTransaction, RiskFinding, Employee
+from app.models.payroll_models import (
+    PayrollBatchDocument,
+    EmployeeDocument,
+    SalaryTransactionDocument,
+    RiskFindingDocument,
+    PAYROLL_BATCHES_COLLECTION,
+    EMPLOYEES_COLLECTION,
+    SALARY_TRANSACTIONS_COLLECTION,
+    RISK_FINDINGS_COLLECTION
+)
 from app.services.validation_service import ValidationService
 from app.services.crypto_service import CryptoService
 from app.services.rule_engine import RuleEngineService
@@ -22,13 +31,13 @@ def get_flex_val(row: Dict[str, Any], aliases: List[str], default: Any = None) -
 
 class IngestionService:
     """
-    Strict Data Ingestion Engine & Pipeline Orchestrator
+    Strict Data Ingestion Engine & Pipeline Orchestrator (MongoDB document store)
     Parses ingested CSV rows, strictly preserves available fields, enforces validation & cryptographic hashing,
-    triggers Rule Engine, ML Anomaly Engine, Trust Graph Engine, computes PIS, and saves to DB.
+    triggers Rule Engine, ML Anomaly Engine, Trust Graph Engine, computes PIS, and saves to MongoDB collections.
     """
 
     @staticmethod
-    def process_payroll_data(raw_records: List[Dict[str, Any]], batch_name: str, db: Session) -> Tuple[PayrollBatch, Dict[str, Any], str, List[str]]:
+    def process_payroll_data(raw_records: List[Dict[str, Any]], batch_name: str, db: Any) -> Tuple[PayrollBatchDocument, Dict[str, Any], str, List[str]]:
         batch_id = f"batch-{uuid.uuid4().hex[:8]}"
         
         # 1. Cleanse & Normalize Records strictly from ingested payload
@@ -148,10 +157,10 @@ class IngestionService:
         # 8. Run Layer 5: Explainable LLM Narrative
         llm_narrative = LLMExplainerService.generate_narrative(batch_name, pis_score, all_findings)
         
-        # 9. Persist to Database
+        # 9. Persist to MongoDB Database
         total_amount = sum(r["gross_salary"] for r in scored_records)
         
-        batch = PayrollBatch(
+        batch = PayrollBatchDocument(
             id=batch_id,
             batch_name=batch_name,
             period_start="2026-08-01",
@@ -163,35 +172,37 @@ class IngestionService:
             total_employees=len(scored_records),
             integrity_score=pis_score,
             status=batch_status,
-            proof_hash=proof_hash
+            proof_hash=proof_hash,
+            processed_at=datetime.utcnow()
         )
-        db.add(batch)
+        db[PAYROLL_BATCHES_COLLECTION].insert_one(batch.model_dump())
         
         # Save Employees & Salary Transactions
+        tx_docs = []
         for r in scored_records:
-            existing_emp = db.query(Employee).filter(Employee.id == r["id"]).first()
-            if not existing_emp:
-                emp = Employee(
-                    id=r["id"],
-                    first_name=r["first_name"],
-                    last_name=r["last_name"],
-                    email=r["email"] or f"{r['id'].lower()}@company.com",
-                    department=r["department"],
-                    job_title=r["job_title"],
-                    base_salary=r["base_salary"],
-                    bank_account_no=r["bank_account_no"],
-                    bank_name=r["bank_name"],
-                    manager_id=r["manager_id"],
-                    device_id=r["device_id"],
-                    ip_address=r["ip_address"]
-                )
-                db.add(emp)
-                
+            emp_id = r["id"]
+            emp_doc = {
+                "id": emp_id,
+                "first_name": r["first_name"],
+                "last_name": r["last_name"],
+                "email": r["email"] or f"{emp_id.lower()}@company.com",
+                "department": r["department"],
+                "job_title": r["job_title"],
+                "base_salary": r["base_salary"],
+                "bank_account_no": r["bank_account_no"],
+                "bank_name": r["bank_name"],
+                "manager_id": r["manager_id"],
+                "device_id": r["device_id"],
+                "ip_address": r["ip_address"],
+                "created_at": datetime.utcnow()
+            }
+            db[EMPLOYEES_COLLECTION].update_one({"id": emp_id}, {"$set": emp_doc}, upsert=True)
+            
             emp_display_name = f"{r['first_name']} {r['last_name']}".strip()
-            tx = SalaryTransaction(
+            tx = SalaryTransactionDocument(
                 id=f"tx-{uuid.uuid4().hex[:8]}",
                 batch_id=batch_id,
-                employee_id=r["id"],
+                employee_id=emp_id,
                 employee_name=emp_display_name,
                 department=r["department"] or "Data unavailable",
                 gross_salary=r["gross_salary"],
@@ -210,11 +221,15 @@ class IngestionService:
                 risk_score=r["risk_score"],
                 status=r["status"]
             )
-            db.add(tx)
+            tx_docs.append(tx.model_dump())
+            
+        if tx_docs:
+            db[SALARY_TRANSACTIONS_COLLECTION].insert_many(tx_docs)
 
         # Save Risk Findings
+        finding_docs = []
         for f in all_findings:
-            finding = RiskFinding(
+            finding = RiskFindingDocument(
                 id=f["id"],
                 batch_id=batch_id,
                 employee_id=f.get("employee_id"),
@@ -224,11 +239,12 @@ class IngestionService:
                 severity=f["severity"],
                 title=f["title"],
                 description=f["description"],
-                evidence_json=f.get("evidence_json")
+                evidence_json=f.get("evidence_json"),
+                created_at=datetime.utcnow()
             )
-            db.add(finding)
+            finding_docs.append(finding.model_dump())
             
-        db.commit()
-        db.refresh(batch)
-        
+        if finding_docs:
+            db[RISK_FINDINGS_COLLECTION].insert_many(finding_docs)
+            
         return batch, graph_payload, llm_narrative, validation_warnings

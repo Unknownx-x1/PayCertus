@@ -4,6 +4,7 @@
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4.6+-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14+-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.4+-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![NetworkX](https://img.shields.io/badge/NetworkX-3.2+-blue?style=for-the-badge)](https://networkx.org/)
@@ -13,11 +14,11 @@
 
 ## 📌 Executive Summary
 
-**PayCertus** (formerly Payroll Sentinel) is an industry-grade payroll fraud detection and payroll integrity platform operating as a continuous security firewall between Human Resource Management Systems (HRMS / ERP software such as Workday, SAP SuccessFactors, BambooHR) and payroll disbursement gateways.
+**PayCertus** is an industry-grade payroll fraud detection and payroll integrity platform operating as a continuous security firewall between Human Resource Management Systems (HRMS / ERP software such as Workday, SAP SuccessFactors, BambooHR) and payroll disbursement gateways.
 
 Unlike traditional payroll tools that rely on retrospective, post-disbursement audits, **PayCertus continuously evaluates payroll batches before funds leave the enterprise**.
 
-The platform calculates a composite **Payroll Integrity Score (PIS)**, generates canonical **SHA-256 Cryptographic Batch Proofs**, isolates hidden collusion rings via an **Enterprise Trust Graph**, generates **explainable AI audit evidence**, and enforces automated or manual **Payroll Firewall** holds/blocks on high-risk disbursement cycles.
+The platform calculates a composite **Payroll Integrity Score (PIS)**, generates canonical **SHA-256 Cryptographic Batch Proofs**, isolates hidden collusion rings via an **Enterprise Trust Graph**, stores document records in **MongoDB**, generates **explainable AI audit evidence**, and enforces automated or manual **Payroll Firewall** holds/blocks on high-risk disbursement cycles.
 
 ```
 [ HRMS / ERP Data Upload ] ──► [ Pre-Ingestion Data Validation ]
@@ -38,21 +39,21 @@ The platform calculates a composite **Payroll Integrity Score (PIS)**, generates
                                           │
                                           ▼
                        ┌─────────────────────────────────────┐
-                       │  Payroll Integrity Score (PIS) &    │
-                       │   Financial Exposure Breakdown      │
+                       │  MongoDB BSON Document Store        │
+                       │  (Batches, Transactions, Findings)  │
                        └──────────────────┬──────────────────┘
                                           │
                                           ▼
-              ┌───────────────────────────┴───────────────────────────┐
-              ▼                                                       ▼
-  [ Approved / Safe Cycles ]                             [ High-Risk / Blocked Cycles ]
-              │                                                       │
-              ▼                                                       ▼
-   { Auto Salary Release }                             { Payroll Firewall Gatekeeper }
-                                                                      │
-                                                                      ▼
-                                                            { 5-Layer Forensic Dossier }
-                                                            {  Audit PDF Exporter      }
+               ┌───────────────────────────┴───────────────────────────┐
+               ▼                                                       ▼
+   [ Approved / Safe Cycles ]                             [ High-Risk / Blocked Cycles ]
+               │                                                       │
+               ▼                                                       ▼
+    { Auto Salary Release }                             { Payroll Firewall Gatekeeper }
+                                                                       │
+                                                                       ▼
+                                                             { 5-Layer Forensic Dossier }
+                                                             {  Audit PDF Exporter      }
 ```
 
 ---
@@ -61,11 +62,12 @@ The platform calculates a composite **Payroll Integrity Score (PIS)**, generates
 
 1. **Pre-Disbursement Fraud Prevention**: Detects ghost employees, salary spikes, duplicate reimbursement claims, zero-attendance full payouts, and shared account collusion *before* payment execution.
 2. **Canonical Cryptographic Proofs**: Generates deterministic SHA-256 proof hashes (`sha256:...`) from canonicalized batch data payloads for immutable regulatory compliance.
-3. **Strict Data-Driven Trust Graph**: Builds 2D topology networks strictly from ingested dataset fields. Never fabricates entities (`Manager`, `Device`, `IPAddress`) unless explicitly present in source CSV data.
-4. **ANOMALY ≠ FRAUD Distinction**: Employs unsupervised machine learning (`Isolation Forest`, `Z-Score`) to flag mathematical distribution outliers against peer baselines without falsely asserting fraud intent without supporting policy rules or graph evidence.
-5. **Deterministic Multi-Layer Risk Engine**: Aggregates weighted risk contributions (`Rule + ML + Graph = Final Employee Risk`) using centralized governance thresholds (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
-6. **Financial Exposure Breakdown**: Computes exact monetary risk distribution (`Approved Amount`, `Held Amount`, `Blocked Amount`) and supports `PARTIAL_HOLD` batch firewall decisions.
-7. **Compliance Audit Exporter**: Generates printable HTML/PDF compliance reports equipped with cryptographic proof hashes, multi-layer evidence lists, and employee forensic dossiers.
+3. **MongoDB Document Store**: Native BSON document storage (`employees`, `payroll_batches`, `salary_transactions`, `risk_findings`, `audit_logs`). Fully customizable per environment via `MONGODB_URL`.
+4. **Strict Data-Driven Trust Graph**: Builds 2D topology networks strictly from ingested dataset fields. Never fabricates entities (`Manager`, `Device`, `IPAddress`) unless explicitly present in source CSV data.
+5. **ANOMALY ≠ FRAUD Distinction**: Employs unsupervised machine learning (`Isolation Forest`, `Z-Score`) to flag mathematical distribution outliers against peer baselines without falsely asserting fraud intent without supporting policy rules or graph evidence.
+6. **Deterministic Multi-Layer Risk Engine**: Aggregates weighted risk contributions (`Rule + ML + Graph = Final Employee Risk`) using centralized governance thresholds (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
+7. **Financial Exposure Breakdown**: Computes exact monetary risk distribution (`Approved Amount`, `Held Amount`, `Blocked Amount`) and supports `PARTIAL_HOLD` batch firewall decisions.
+8. **Compliance Audit Exporter**: Generates printable HTML/PDF compliance reports equipped with cryptographic proof hashes, multi-layer evidence lists, and employee forensic dossiers.
 
 ---
 
@@ -111,36 +113,6 @@ The platform calculates a composite **Payroll Integrity Score (PIS)**, generates
                         └───────────────────────────┘
 ```
 
-### Layer 1: Deterministic Policy Rule Engine (`rule_engine.py`)
-Executes explicit compliance policy checks:
-- **R1_SHARED_BANK_ACCOUNT**: Flags multiple distinct employee records routing paychecks to identical bank accounts.
-- **R2_UNAUTHORIZED_GHOST_EMPLOYEE**: Detects newly created employees (< 7 days before payroll) lacking manager authorization or attendance logs.
-- **R3_EXCESSIVE_OVERTIME_SPIKE**: Identifies overtime claims exceeding policy thresholds (>40h/cycle).
-- **R4_ZERO_ATTENDANCE_FULL_PAY**: Identifies 0 logged working days accompanied by full base pay release.
-- **R5_UNAUTHORIZED_LARGE_REIMBURSEMENT**: Flags unverified expense claims exceeding threshold limits ($2,500).
-
-### Layer 2: Statistical Machine Learning Engine (`ml_anomaly_engine.py`)
-- **Isolation Forest & Z-Score Distribution**: Unsupervised multivariate anomaly detection on numerical feature vectors (gross pay, overtime hours, reimbursements, attendance days).
-- **Peer Baseline Comparison**: Compares employee metrics against **Department Peer Baselines** (when department data exists) or **Batch-Level Baselines**.
-- **Core Principle: ANOMALY ≠ FRAUD**: Statistical outlier detection flags unusual distribution metrics, but does not independently establish fraudulent intent without supporting policy rules or graph evidence.
-
-### Layer 3: Enterprise Trust Graph Engine (`trust_graph_service.py`)
-- **Topology Network**: Nodes (`Employee`, `BankAccount`, and optional `Manager`, `Device`, `IPAddress`, `Department`) linked by relationships (`PAID_TO`, `BELONGS_TO`, `REPORTS_TO`, `USES_DEVICE`).
-- **Fraud Ring Cluster Detection**: Connected component analysis and degree centrality algorithms isolate shared infrastructure destinations used by multiple employees.
-- **Visual Canvas UX**: Interactive 2D layout with relationship dimming (`opacity: 0.2` for unrelated nodes), cluster focus mode, and data-driven node inspector.
-
-### Layer 4: Deterministic Risk Engine (`risk_scoring_service.py`)
-Calculates employee risk scores ($Risk \in [0, 100]$) and composite Batch Integrity Scores ($PIS \in [0, 100]$):
-- **Employee Risk Governance**:
-  - `0 – 34` 🟢 **LOW**: `APPROVED`
-  - `35 – 59` 🟡 **MEDIUM**: `FLAG_REVIEW`
-  - `60 – 74` 🟠 **HIGH**: `HOLD`
-  - `75 – 100` 🔴 **CRITICAL**: `BLOCKED`
-- **Batch Firewall Status**: `APPROVED`, `FLAGGED`, `PARTIAL_HOLD`, `BLOCKED`.
-
-### Layer 5: Explainable AI Narrative Engine (`llm_explainer.py`)
-Generates natural language executive summaries grounded strictly in empirical findings returned by the analytical pipeline.
-
 ---
 
 ## 📊 100-Employee Benchmark Verification (`payroll_sentinel_large_test_batch_100.csv`)
@@ -158,6 +130,7 @@ The platform includes a 100-employee benchmark dataset for system auditing:
 | **Primary Fraud Ring** | `AC9001` (5 Employees) | `AC9001 (5 EMPS)` | ✅ Verified |
 | **Secondary Ring** | `AC9100` (3 Employees) | `AC9100 (3 EMPS)` | ✅ Verified |
 | **Proof Hash** | Deterministic SHA-256 | `sha256:...` | ✅ Verified |
+| **MongoDB Storage** | 100 Transaction Docs | Verified | ✅ Verified |
 
 ---
 
@@ -166,16 +139,18 @@ The platform includes a 100-employee benchmark dataset for system auditing:
 ```
 payroll_fintech/
 ├── README.md                           # Enterprise documentation & system guide
+├── .env.example                        # Template environment variables
 ├── payroll_sentinel_large_test_batch_100.csv # 100-employee benchmark dataset
 ├── .gitignore
 │
 ├── backend/                            # Python FastAPI Microservices
+│   ├── .env.example                    # Backend environment template
 │   ├── app/
 │   │   ├── main.py                     # Application entrypoint & CORS middleware
 │   │   ├── config.py                   # Pydantic environment configurations
-│   │   ├── database.py                 # SQLAlchemy session engine
+│   │   ├── database.py                 # PyMongo MongoDB connection manager
 │   │   ├── mock_data.py                # Pre-seeded clean & fraud ring datasets
-│   │   ├── models/                     # Database ORM Tables
+│   │   ├── models/                     # MongoDB Pydantic Document Schemas
 │   │   │   └── payroll_models.py       # Employee, Batch, Transaction, RiskFinding, AuditLog
 │   │   ├── schemas/                    # Pydantic Request/Response DTOs
 │   │   │   └── payroll_schemas.py
@@ -187,7 +162,7 @@ payroll_fintech/
 │   │   └── services/                   # 5-Layer Intelligence Pipeline Logic
 │   │       ├── validation_service.py   # CSV Pre-Ingestion Data Integrity Engine
 │   │       ├── crypto_service.py       # SHA-256 Cryptographic Proof Generator
-│   │       ├── ingestion_service.py    # Pipeline orchestrator & data cleanser
+│   │       ├── ingestion_service.py    # Pipeline orchestrator & MongoDB cleanser
 │   │       ├── rule_engine.py          # Deterministic policy rules
 │   │       ├── ml_anomaly_engine.py    # Isolation Forest & Z-Score ML models
 │   │       ├── trust_graph_service.py  # NetworkX topology & ring detector
@@ -195,7 +170,7 @@ payroll_fintech/
 │   │       └── llm_explainer.py        # Explainable AI narrative generator
 │   └── tests/
 │       ├── test_pipeline.py            # Pytest test suite for clean vs fraud runs
-│       └── test_100_employee_batch.py  # Automated 100-employee benchmark test
+│       └── test_100_employee_batch.py  # Automated 100-employee benchmark test (mongomock)
 │
 └── frontend/                           # Next.js 14 App Router Frontend
     ├── src/
@@ -212,7 +187,7 @@ payroll_fintech/
     │   │       ├── Header.tsx
     │   │       └── Sidebar.tsx
     │   └── lib/                        # API Client & Exporters
-    │       ├── api.ts                  # Axios/Fetch client with offline fallback
+    │       ├── api.ts                  # Fetch client supporting env NEXT_PUBLIC_API_BASE_URL
     │       ├── exportReport.ts         # Standalone HTML/PDF Compliance Exporter
     │       └── types.ts                # TypeScript interfaces
     ├── package.json
@@ -230,21 +205,38 @@ payroll_fintech/
 | | UI & Styling | Tailwind CSS, Solid Enterprise Dark Theme, Lucide Icons |
 | | Visualizations | 2D SVG Topology Canvas, Interactive Node Inspector |
 | **Backend** | API Server | Python FastAPI (Async ASGI framework) |
-| | ORM & Database | SQLAlchemy, SQLite (Development) / PostgreSQL (Production) |
+| | Database | MongoDB Document Store (PyMongo 4.6+, Motor 3.3+) |
 | | Cryptography | Python `hashlib` (SHA-256 Batch Hashing) |
 | **Analytics & ML** | ML Anomaly Models | Scikit-learn (`IsolationForest`), NumPy, Pandas |
 | | Graph Engine | NetworkX (In-Memory Topology & Degree Centrality) |
-| **Testing** | Automated Suite | Pytest 9.0+ |
+| **Testing** | Automated Suite | Pytest 9.0+, Mongomock 4.3+ (In-Memory Testing) |
 
 ---
 
-## 🚀 Quickstart & Setup Guide
+## 🚀 Quickstart & Local Setup Guide
 
 ### 1. Prerequisites
 - **Python 3.10+**
 - **Node.js 18+** and **npm**
+- **MongoDB** (Local instance or MongoDB Atlas Cloud URI)
 
-### 2. Backend Setup & Server Execution
+### 2. Configure Environment Variables
+Copy `.env.example` to `backend/.env`:
+```bash
+cp backend/.env.example backend/.env
+```
+Provide your MongoDB connection string in `backend/.env`:
+```env
+# Option A: MongoDB Atlas Cloud
+MONGODB_URL=mongodb+srv://<username>:<password>@cluster0.xxx.mongodb.net/?retryWrites=true&w=majority
+MONGODB_DB_NAME=payroll_sentinel
+
+# Option B: Local MongoDB
+MONGODB_URL=mongodb://localhost:27017
+MONGODB_DB_NAME=payroll_sentinel
+```
+
+### 3. Start Backend Server
 ```bash
 # Navigate to backend directory
 cd backend
@@ -258,7 +250,7 @@ python -m uvicorn app.main:app --reload --port 8000
 - API Base Endpoint: `http://localhost:8000`
 - Interactive OpenAPI Docs: `http://localhost:8000/docs`
 
-### 3. Frontend Setup & Web App Launch
+### 4. Start Frontend Web App
 Open a new terminal window:
 ```bash
 # Navigate to frontend directory
@@ -274,12 +266,36 @@ npm run dev -- -p 3000
 
 ---
 
+## 🌐 Deploying to Production Online (Free Tier Guide)
+
+```
+┌────────────────────────┐      ┌────────────────────────┐      ┌────────────────────────┐
+│   Vercel (Frontend)    │ ───► │  Render.com (Backend)  │ ───► │ MongoDB Atlas (Cloud)  │
+│    Next.js 14 Web App  │      │     FastAPI Engine     │      │   Database Cluster     │
+└────────────────────────┘      └────────────────────────┘      └────────────────────────┘
+```
+
+1. **Database (MongoDB Atlas)**:
+   - Create a free **M0 Cluster** on [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+   - In **Network Access**, allow access from anywhere (`0.0.0.0/0`).
+   - Copy your connection string: `mongodb+srv://<user>:<password>@cluster.mongodb.net/...`
+2. **Backend API (Render.com)**:
+   - Deploy `backend/` as a Web Service on [Render.com](https://render.com/).
+   - Set Build Command: `pip install -r requirements.txt`
+   - Set Start Command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - Set Environment Variable: `MONGODB_URL` = *(Your MongoDB Atlas connection string)*.
+3. **Frontend (Vercel)**:
+   - Deploy `frontend/` on [Vercel](https://vercel.com/).
+   - Set Environment Variable: `NEXT_PUBLIC_API_BASE_URL` = `https://your-backend.onrender.com/api/v1`.
+
+---
+
 ## 🧪 Running Automated Test Suite
 
-Run the full backend test suite directly from the root repository directory:
+Run the full backend test suite directly from the repository directory:
 
-```powershell
-$env:PYTHONPATH="backend"; python -m pytest backend/tests
+```bash
+python -m pytest backend/tests/
 ```
 
 **Expected Output:**
@@ -287,7 +303,7 @@ $env:PYTHONPATH="backend"; python -m pytest backend/tests
 collected 3 items
 backend\tests\test_100_employee_batch.py .                               [ 33%]
 backend\tests\test_pipeline.py ..                                        [100%]
-======================= 3 passed in 2.02s =======================
+======================= 3 passed in 2.14s =======================
 ```
 
 ---
