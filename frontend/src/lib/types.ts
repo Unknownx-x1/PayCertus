@@ -3,7 +3,7 @@ export interface RiskFinding {
   batch_id: string;
   employee_id?: string;
   employee_name?: string;
-  layer: 'RULE' | 'ANOMALY' | 'GRAPH';
+  layer: 'RULE' | 'ANOMALY' | 'GRAPH' | 'CROSS_SIGNAL';
   rule_code: string;
   severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
   title: string;

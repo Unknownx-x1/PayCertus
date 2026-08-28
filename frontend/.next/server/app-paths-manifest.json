@@ -1,10 +1,10 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
   "/hr-simulator/page": "app/hr-simulator/page.js",
-  "/investigation/page": "app/investigation/page.js",
   "/overview/page": "app/overview/page.js",
-  "/reports/page": "app/reports/page.js",
+  "/trust-graph/page": "app/trust-graph/page.js",
   "/page": "app/page.js",
+  "/reports/page": "app/reports/page.js",
   "/upload/page": "app/upload/page.js",
-  "/trust-graph/page": "app/trust-graph/page.js"
+  "/investigation/page": "app/investigation/page.js"
 }
