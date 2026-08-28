@@ -71,8 +71,8 @@ export default function HRSimulatorPage() {
       
       // If benchmark button clicked or no file selected, create benchmark file
       if (usePresetBenchmark || !fileToUpload) {
-        // Fetch benchmark CSV
-        const response = await fetch('/payroll_sentinel_large_test_batch_100.csv');
+        // Fetch benchmark CSV (200-record multi-signal dataset)
+        const response = await fetch('/payroll_sentinel_200_multi_signal_batch.csv');
         let blob: Blob;
         if (response.ok) {
           blob = await response.blob();
@@ -81,7 +81,7 @@ export default function HRSimulatorPage() {
           const dummyCsv = `employee_id,employee_name,salary,overtime,attendance,bank_account\nE001,Arjun Verma,85000,45,0,AC9001\nE002,Ishita Singh,82000,42,0,AC9001\nE003,Dev Malhotra,90000,48,0,AC9001\nE004,Mira Shah,88000,44,0,AC9001\nE005,Rahul Jain,95000,50,0,AC9001\nE006,Regular Worker,60000,0,22,AC1006`;
           blob = new Blob([dummyCsv], { type: 'text/csv' });
         }
-        fileToUpload = new File([blob], 'payroll_sentinel_large_test_batch_100.csv', { type: 'text/csv' });
+        fileToUpload = new File([blob], 'payroll_sentinel_200_multi_signal_batch.csv', { type: 'text/csv' });
       }
 
       const res = await uploadCSVFile(fileToUpload);

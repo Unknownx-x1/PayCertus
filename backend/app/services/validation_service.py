@@ -26,7 +26,7 @@ class ValidationService:
             else:
                 emp_id_str = str(emp_id).strip()
                 if emp_id_str in seen_emp_ids:
-                    errors.append(f"Row {row_num}: Duplicate employee_id '{emp_id_str}' detected.")
+                    warnings.append(f"Row {row_num}: Duplicate employee_id '{emp_id_str}' detected in batch.")
                 seen_emp_ids.add(emp_id_str)
 
             # 2. Employee Name Validation

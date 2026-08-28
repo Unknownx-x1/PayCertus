@@ -1,0 +1,202 @@
+employee_id,first_name,last_name,email,department,base_salary,gross_salary,net_salary,bonus,previous_salary,salary_increase_pct,bank_account_no,bank_account_changed,employment_status,is_ghost,overtime_hours,reimbursements,attendance_days
+EMP-1001,Rahul,Singh,rahul.singh1@company.com,Engineering,93598.0,93598.0,76750.36,0.0,93598.0,0.0,XXXXXX1001,False,active,False,0.0,0.0,22
+EMP-1002,Sneha,Gupta,sneha.gupta2@company.com,Sales,89348.0,89618.0,73486.76,0.0,89348.0,0.0,XXXXXX1002,False,active,False,6.0,300.0,22
+EMP-1003,Rohan,Choudhury,rohan.choudhury3@company.com,Legal,47082.0,47082.0,38607.24,0.0,47082.0,0.0,XXXXXX1003,False,active,False,0.0,0.0,22
+EMP-1004,Karan,Joshi,karan.joshi4@company.com,Engineering,81781.0,81781.0,67060.42,0.0,81781.0,0.0,XXXXXX1004,False,active,False,0.0,450.0,22
+EMP-1005,Rahul,Iyer,rahul.iyer5@company.com,Legal,320000.0,320000.0,262400.0,0.0,59446.0,0.0,XXXXXX1005,False,active,False,2.0,300.0,22
+EMP-1006,Aditya,Sharma,aditya.sharma6@company.com,Finance,90753.0,90843.0,74491.26,0.0,90753.0,0.0,XXXXXX1006,False,active,False,2.0,0.0,22
+EMP-1007,Aditya,Gupta,aditya.gupta7@company.com,HR,67059.0,67059.0,54988.38,0.0,67059.0,0.0,XXXXXX1007,False,active,False,0.0,0.0,22
+EMP-1008,Kabir,Singh,kabir.singh8@company.com,Marketing,67541.0,67721.0,55531.22,0.0,67541.0,0.0,XXXXXX1008,False,active,False,4.0,0.0,22
+EMP-1009,Sonam,Verma,sonam.verma9@company.com,Customer Support,80142.0,80142.0,65716.44,0.0,80142.0,0.0,XXXXXX1009,False,active,False,0.0,150.0,22
+EMP-1010,Rohan,Iyer,rohan.iyer10@company.com,Operations,86198.0,86378.0,70829.96,0.0,86198.0,0.0,XXXXXX1010,False,active,False,4.0,0.0,22
+EMP-1011,Varun,Patel,varun.patel11@company.com,Sales,48003.0,48273.0,39583.86,0.0,48003.0,0.0,XXXXXX1011,False,active,False,6.0,0.0,22
+EMP-1012,Manish,Rao,manish.rao12@company.com,Sales,85000.0,85000.0,69700.0,0.0,60000.0,41.6,XXXXXX1012,False,active,False,8.0,0.0,22
+EMP-1013,Kabir,Bose,kabir.bose13@company.com,Customer Support,86660.0,87020.0,71356.4,0.0,86660.0,0.0,XXXXXX1013,False,active,False,8.0,0.0,22
+EMP-1014,Ananya,Nair,ananya.nair14@company.com,Marketing,58730.0,59000.0,48380.0,0.0,58730.0,0.0,XXXXXX1014,False,active,False,6.0,0.0,22
+EMP-1015,Amit,Kapoor,amit.kapoor15@company.com,Finance,80005.0,80275.0,65825.5,0.0,80005.0,0.0,XXXXXX1015,False,active,False,6.0,0.0,22
+EMP-1016,Ananya,Saxena,ananya.saxena16@company.com,Legal,62691.0,62961.0,51628.02,0.0,62691.0,0.0,XXXXXX1016,False,active,False,6.0,450.0,22
+EMP-1017,Pooja,Joshi,pooja.joshi17@company.com,Marketing,48665.0,48665.0,39905.3,0.0,48665.0,0.0,XXXXXX1017,False,active,False,0.0,0.0,22
+EMP-1018,Sonam,Reddy,sonam.reddy18@company.com,Legal,62546.0,75000.0,61500.0,0.0,62546.0,0.0,XXXXXX1018,False,terminated,False,0.0,0.0,22
+EMP-1019,Swati,Choudhury,swati.choudhury19@company.com,Marketing,58934.0,59204.0,48547.28,0.0,58934.0,0.0,XXXXXX1019,False,active,False,6.0,150.0,22
+EMP-1020,Kabir,Saxena,kabir.saxena20@company.com,Finance,62359.0,62359.0,51134.38,0.0,62359.0,0.0,XXXXXX1020,False,active,False,0.0,0.0,22
+EMP-1021,Kavya,Iyer,kavya.iyer21@company.com,Operations,93956.0,94136.0,77191.52,0.0,93956.0,0.0,XXXXXX1021,False,active,False,4.0,150.0,22
+EMP-1022,Rajesh,Choudhury,rajesh.choudhury22@company.com,Legal,68723.0,68723.0,56352.86,0.0,68723.0,0.0,XXXXXX1022,False,active,False,0.0,0.0,22
+EMP-1023,Dev,Malhotra,dev.malhotra23@company.com,Sales,94530.0,94530.0,77514.6,0.0,94530.0,0.0,XXXXXX1023,False,active,False,0.0,0.0,22
+EMP-1024,Vikram,Mehta,vikram.mehta24@company.com,Legal,84086.0,84086.0,68950.52,0.0,84086.0,0.0,XXXXXX1024,False,active,False,0.0,150.0,22
+EMP-1025,Kabir,Bhatnagar,kabir.bhatnagar25@company.com,Customer Support,79676.0,79676.0,65334.32,0.0,79676.0,0.0,XXXXXX9888,True,active,False,0.0,300.0,22
+EMP-1026,Nisha,Sharma,nisha.sharma26@company.com,Sales,89676.0,89856.0,73681.92,0.0,89676.0,0.0,XXXXXX1026,False,active,False,4.0,0.0,22
+EMP-1027,Manish,Reddy,manish.reddy27@company.com,Sales,64234.0,64324.0,52745.68,0.0,64234.0,0.0,XXXXXX1027,False,active,False,2.0,0.0,22
+EMP-1028,Aarav,Sharma,aarav.sharma28@company.com,Operations,77806.0,78166.0,64096.12,0.0,77806.0,0.0,XXXXXX1028,False,active,False,8.0,0.0,22
+EMP-1029,Dev,Singh,dev.singh29@company.com,Operations,86874.0,87054.0,71384.28,0.0,86874.0,0.0,XXXXXX1029,False,active,False,4.0,300.0,22
+EMP-1030,Karan,Gupta,karan.gupta30@company.com,Marketing,94971.0,94971.0,77876.22,0.0,94971.0,0.0,XXXXXX1030,False,active,False,0.0,300.0,22
+EMP-1031,Manish,Trivedi,manish.trivedi31@company.com,Engineering,84252.0,84252.0,69086.64,0.0,84252.0,0.0,XXXXXX1031,False,active,False,0.0,150.0,22
+EMP-1032,Arjun,Singh,arjun.singh32@company.com,Marketing,65153.0,80153.0,65725.46,15000.0,65153.0,0.0,XXXXXX1032,False,active,False,0.0,0.0,22
+EMP-1033,Sneha,Choudhury,sneha.choudhury33@company.com,Sales,50613.0,50883.0,41724.06,0.0,50613.0,0.0,XXXXXX1033,False,active,False,6.0,150.0,22
+EMP-1034,Gaurav,Kapoor,gaurav.kapoor34@company.com,Finance,53414.0,53684.0,44020.88,0.0,53414.0,0.0,XXXXXX1034,False,active,False,6.0,150.0,22
+EMP-1035,Pooja,Mehta,pooja.mehta35@company.com,Operations,79581.0,79941.0,65551.62,0.0,79581.0,0.0,XXXXXX1035,False,active,False,8.0,300.0,22
+EMP-1036,Riya,Patel,riya.patel36@company.com,HR,91723.0,91723.0,75212.86,0.0,91723.0,0.0,XXXXXX1036,False,active,False,0.0,150.0,22
+EMP-1037,Deepika,Nair,deepika.nair37@company.com,Customer Support,78919.0,79009.0,64787.38,0.0,78919.0,0.0,XXXXXX1037,False,active,False,2.0,0.0,22
+EMP-1038,Sneha,Joshi,sneha.joshi38@company.com,Sales,67156.0,67156.0,55067.92,0.0,67156.0,0.0,XXXXXX1038,False,active,False,0.0,300.0,22
+EMP-1039,Pooja,Joshi,pooja.joshi39@company.com,HR,45471.0,45471.0,37286.22,0.0,45471.0,0.0,XXXXXX1039,False,active,False,0.0,450.0,22
+EMP-1040,Rahul,Verma,rahul.verma40@company.com,HR,30000.0,30000.0,24600.0,0.0,49417.0,0.0,XXXXXX1040,False,active,False,0.0,0.0,22
+EMP-1041,Rohan,Trivedi,rohan.trivedi41@company.com,HR,63250.0,63520.0,52086.4,0.0,63250.0,0.0,XXXXXX1041,False,active,False,6.0,150.0,22
+EMP-1042,Karan,Iyer,karan.iyer42@company.com,Finance,92405.0,92585.0,75919.7,0.0,92405.0,0.0,XXXXXX1042,False,active,False,4.0,300.0,22
+EMP-1043,Tanvi,Joshi,tanvi.joshi43@company.com,Customer Support,71677.0,71677.0,58775.14,0.0,71677.0,0.0,XXXXXX1043,False,active,False,0.0,0.0,22
+EMP-1044,Priya,Chopra,priya.chopra44@company.com,Marketing,72759.0,72849.0,59736.18,0.0,72759.0,0.0,XXXXXX1044,False,active,False,2.0,150.0,22
+EMP-1045,Nisha,Verma,nisha.verma45@company.com,Sales,48972.0,49062.0,40230.84,0.0,48972.0,0.0,XXXXXX1045,False,active,False,2.0,450.0,22
+EMP-1046,Siddharth,Singh,siddharth.singh46@company.com,HR,57556.0,57556.0,47195.92,0.0,57556.0,0.0,XXXXXX1046,False,active,False,0.0,300.0,22
+EMP-1047,Aarav,Gupta,aarav.gupta47@company.com,Legal,57025.0,57025.0,46760.5,0.0,57025.0,0.0,XXXXXX1047,False,active,False,0.0,150.0,22
+EMP-GHOST-909,Sneha,Kapoor,sneha.kapoor48@company.com,Customer Support,81066.0,65000.0,53300.0,0.0,81066.0,0.0,XXXXXX1048,False,ghost,True,0.0,0.0,0
+EMP-1049,Rahul,Iyer,rahul.iyer49@company.com,Engineering,51112.0,51472.0,42207.04,0.0,51112.0,0.0,XXXXXX1049,False,active,False,8.0,0.0,22
+EMP-1050,Ananya,Chopra,ananya.chopra50@company.com,Customer Support,76546.0,76546.0,62767.72,0.0,76546.0,0.0,XXXXXX1050,False,active,False,0.0,150.0,22
+EMP-1051,Rajesh,Verma,rajesh.verma51@company.com,Finance,69836.0,69836.0,57265.52,0.0,69836.0,0.0,XXXXXX1051,False,active,False,0.0,150.0,22
+EMP-1052,Aditya,Saxena,aditya.saxena52@company.com,Operations,72722.0,72992.0,59853.44,0.0,72722.0,0.0,XXXXXX1052,False,active,False,6.0,450.0,22
+EMP-1053,Sonam,Iyer,sonam.iyer53@company.com,Customer Support,55144.0,55144.0,45218.08,0.0,55144.0,0.0,XXXXXX1053,False,active,False,0.0,0.0,22
+EMP-1054,Karan,Verma,karan.verma54@company.com,Engineering,94019.0,94019.0,77095.58,0.0,94019.0,0.0,XXXXXX1054,False,active,False,0.0,0.0,22
+EMP-1055,Neha,Choudhury,neha.choudhury55@company.com,Customer Support,77954.0,78314.0,64217.48,0.0,77954.0,0.0,XXXXXX4821,False,active,False,8.0,300.0,22
+EMP-1056,Ananya,Verma,ananya.verma56@company.com,Sales,57178.0,57178.0,46885.96,0.0,57178.0,0.0,XXXXXX4821,False,active,False,0.0,300.0,22
+EMP-1057,Rohan,Joshi,rohan.joshi57@company.com,Legal,52856.0,53036.0,43489.52,0.0,52856.0,0.0,XXXXXX4821,False,active,False,4.0,0.0,22
+EMP-1058,Varun,Bhatnagar,varun.bhatnagar58@company.com,Engineering,85591.0,85591.0,70184.62,0.0,85591.0,0.0,XXXXXX4821,False,active,False,0.0,150.0,22
+EMP-1059,Deepika,Choudhury,deepika.choudhury59@company.com,Marketing,62089.0,62089.0,50912.98,0.0,62089.0,0.0,XXXXXX4821,False,active,False,0.0,450.0,22
+EMP-1060,Amit,Reddy,amit.reddy60@company.com,HR,62407.0,62497.0,51247.54,0.0,62407.0,0.0,XXXXXX1060,False,active,False,2.0,0.0,22
+EMP-1061,Deepika,Rao,deepika.rao61@company.com,Customer Support,65720.0,66080.0,54185.6,0.0,65720.0,0.0,XXXXXX1061,False,active,False,8.0,0.0,22
+EMP-1062,Arjun,Saxena,arjun.saxena62@company.com,Sales,49801.0,49981.0,40984.42,0.0,49801.0,0.0,XXXXXX1062,False,active,False,4.0,0.0,22
+EMP-1063,Dev,Bose,dev.bose63@company.com,Finance,67872.0,67872.0,55655.04,0.0,67872.0,0.0,XXXXXX1063,False,active,False,0.0,0.0,22
+EMP-1064,Meera,Rao,meera.rao64@company.com,Finance,73716.0,74076.0,60742.32,0.0,73716.0,0.0,XXXXXX1064,False,active,False,8.0,300.0,22
+EMP-1065,Amit,Rao,amit.rao65@company.com,Engineering,88769.0,89129.0,73085.78,0.0,88769.0,0.0,XXXXXX1065,False,active,False,8.0,300.0,22
+EMP-1066,Ishita,Singh,ishita.singh66@company.com,Finance,62332.0,62332.0,51112.24,0.0,62332.0,0.0,XXXXXX1066,False,active,False,0.0,0.0,22
+EMP-1067,Kavya,Iyer,kavya.iyer67@company.com,Finance,62848.0,62848.0,51535.36,0.0,62848.0,0.0,XXXXXX1067,False,active,False,0.0,300.0,22
+EMP-1068,Karan,Reddy,karan.reddy68@company.com,HR,90055.0,90325.0,74066.5,0.0,90055.0,0.0,XXXXXX1068,False,active,False,6.0,0.0,22
+EMP-1069,Dev,Malhotra,dev.malhotra69@company.com,Operations,48329.0,48329.0,39629.78,0.0,48329.0,0.0,XXXXXX1069,False,active,False,0.0,450.0,22
+EMP-1070,Riya,Bose,riya.bose70@company.com,Engineering,45232.0,45232.0,37090.24,0.0,45232.0,0.0,XXXXXX1182,False,active,False,0.0,0.0,22
+EMP-1071,Rahul,Bose,rahul.bose71@company.com,Finance,93577.0,93667.0,76806.94,0.0,93577.0,0.0,XXXXXX1182,False,active,False,2.0,300.0,22
+EMP-1072,Amit,Chopra,amit.chopra72@company.com,Engineering,52331.0,52331.0,42911.42,0.0,52331.0,0.0,XXXXXX1182,False,active,False,0.0,450.0,22
+EMP-1073,Rajesh,Gupta,rajesh.gupta73@company.com,Engineering,69196.0,69376.0,56888.32,0.0,69196.0,0.0,XXXXXX1182,False,active,False,4.0,300.0,22
+EMP-1074,Vikram,Chopra,vikram.chopra74@company.com,Finance,47741.0,47741.0,39147.62,0.0,47741.0,0.0,XXXXXX1182,False,active,False,0.0,0.0,22
+EMP-1075,Rajesh,Verma,rajesh.verma75@company.com,Marketing,58767.0,59037.0,48410.34,0.0,58767.0,0.0,XXXXXX1182,False,active,False,6.0,0.0,22
+EMP-1076,Deepika,Singh,deepika.singh76@company.com,Marketing,81692.0,82052.0,67282.64,0.0,81692.0,0.0,XXXXXX1182,False,active,False,8.0,150.0,22
+EMP-1077,Simran,Gupta,simran.gupta77@company.com,HR,55649.0,56009.0,45927.38,0.0,55649.0,0.0,XXXXXX1182,False,active,False,8.0,0.0,22
+EMP-1078,Rajesh,Chopra,rajesh.chopra78@company.com,Engineering,56754.0,57024.0,46759.68,0.0,56754.0,0.0,XXXXXX1182,False,active,False,6.0,0.0,22
+EMP-1079,Sonam,Chopra,sonam.chopra79@company.com,HR,62485.0,62485.0,51237.7,0.0,62485.0,0.0,XXXXXX1079,False,active,False,0.0,450.0,22
+EMP-1080,Priya,Deshmukh,priya.deshmukh80@company.com,Engineering,75847.0,75847.0,62194.54,0.0,75847.0,0.0,XXXXXX1080,False,active,False,0.0,0.0,22
+EMP-1081,Gaurav,Saxena,gaurav.saxena81@company.com,Marketing,65000.0,65360.0,53595.2,0.0,65000.0,0.0,XXXXXX1081,False,active,False,8.0,0.0,22
+EMP-1082,Sneha,Sharma,sneha.sharma82@company.com,HR,71113.0,71113.0,58312.66,0.0,71113.0,0.0,XXXXXX1082,False,active,False,0.0,0.0,22
+EMP-1083,Nisha,Kapoor,nisha.kapoor83@company.com,Operations,68012.0,68282.0,55991.24,0.0,68012.0,0.0,XXXXXX1083,False,active,False,6.0,300.0,22
+EMP-1084,Kabir,Iyer,kabir.iyer84@company.com,Marketing,46808.0,46808.0,38382.56,0.0,46808.0,0.0,XXXXXX1084,False,active,False,0.0,0.0,22
+EMP-1085,Ananya,Choudhury,ananya.choudhury85@company.com,Operations,47507.0,47507.0,38955.74,0.0,47507.0,0.0,XXXXXX1085,False,active,False,0.0,300.0,22
+EMP-1086,Riya,Nair,riya.nair86@company.com,Marketing,73599.0,73779.0,60498.78,0.0,73599.0,0.0,XXXXXX1086,False,active,False,4.0,300.0,22
+EMP-1087,Priya,Deshmukh,priya.deshmukh87@company.com,HR,61693.0,61693.0,50588.26,0.0,61693.0,0.0,XXXXXX1087,False,active,False,0.0,450.0,22
+EMP-1088,Riya,Sharma,riya.sharma88@company.com,HR,68869.0,68959.0,56546.38,0.0,68869.0,0.0,XXXXXX1088,False,active,False,2.0,0.0,22
+EMP-1089,Deepika,Reddy,deepika.reddy89@company.com,Marketing,88475.0,88835.0,72844.7,0.0,88475.0,0.0,XXXXXX1089,False,active,False,8.0,0.0,22
+EMP-1090,Kavya,Rao,kavya.rao90@company.com,Operations,75000.0,83000.0,68060.0,8000.0,50000.0,50.0,XXXXXX1090,True,active,False,2.0,0.0,22
+EMP-1091,Kabir,Rao,kabir.rao91@company.com,Finance,57572.0,57662.0,47282.84,0.0,57572.0,0.0,XXXXXX1091,False,active,False,2.0,450.0,22
+EMP-1092,Kabir,Mehta,kabir.mehta92@company.com,Operations,71612.0,71792.0,58869.44,0.0,71612.0,0.0,XXXXXX1092,False,active,False,4.0,0.0,22
+EMP-1093,Ishita,Rao,ishita.rao93@company.com,HR,73173.0,73533.0,60297.06,0.0,73173.0,0.0,XXXXXX1093,False,active,False,8.0,300.0,22
+EMP-1094,Simran,Reddy,simran.reddy94@company.com,Customer Support,73952.0,74042.0,60714.44,0.0,73952.0,0.0,XXXXXX1094,False,active,False,2.0,450.0,22
+EMP-1095,Karan,Trivedi,karan.trivedi95@company.com,Customer Support,93231.0,93231.0,76449.42,0.0,93231.0,0.0,XXXXXX1095,False,active,False,0.0,450.0,22
+EMP-1096,Rohan,Rao,rohan.rao96@company.com,Marketing,51120.0,51480.0,42213.6,0.0,51120.0,0.0,XXXXXX1096,False,active,False,8.0,0.0,22
+EMP-1097,Deepika,Rao,deepika.rao97@company.com,HR,58050.0,58050.0,47601.0,0.0,58050.0,0.0,XXXXXX1097,False,active,False,0.0,0.0,22
+EMP-1098,Neha,Joshi,neha.joshi98@company.com,Customer Support,85060.0,85420.0,70044.4,0.0,85060.0,0.0,XXXXXX1098,False,active,False,8.0,0.0,22
+EMP-1099,Aarav,Chopra,aarav.chopra99@company.com,HR,92077.0,92347.0,75724.54,0.0,92077.0,0.0,XXXXXX1099,False,active,False,6.0,150.0,22
+EMP-1100,Tanvi,Deshmukh,tanvi.deshmukh100@company.com,HR,54671.0,54941.0,45051.62,0.0,54671.0,0.0,XXXXXX1100,False,active,False,6.0,450.0,22
+EMP-1101,Arjun,Singh,arjun.singh101@company.com,Legal,59341.0,59341.0,48659.62,0.0,59341.0,0.0,XXXXXX1101,False,active,False,0.0,450.0,22
+EMP-1102,Dev,Saxena,dev.saxena102@company.com,Engineering,81530.0,81530.0,66854.6,0.0,81530.0,0.0,XXXXXX1102,False,active,False,0.0,0.0,22
+EMP-1103,Aarav,Gupta,aarav.gupta103@company.com,Customer Support,88750.0,88930.0,72922.6,0.0,88750.0,0.0,XXXXXX1103,False,active,False,4.0,300.0,22
+EMP-1104,Simran,Reddy,simran.reddy104@company.com,Customer Support,85150.0,85510.0,70118.2,0.0,85150.0,0.0,XXXXXX1104,False,active,False,8.0,450.0,22
+EMP-1105,Rajesh,Trivedi,rajesh.trivedi105@company.com,Legal,80905.0,90000.0,73800.0,12000.0,80905.0,0.0,XXXXXX1105,False,ghost,True,2.0,0.0,0
+EMP-1106,Kavya,Malhotra,kavya.malhotra106@company.com,Customer Support,61986.0,62346.0,51123.72,0.0,61986.0,0.0,XXXXXX1106,False,active,False,8.0,0.0,22
+EMP-1107,Gaurav,Bose,gaurav.bose107@company.com,Customer Support,86074.0,86074.0,70580.68,0.0,86074.0,0.0,XXXXXX1107,False,active,False,0.0,0.0,22
+EMP-1108,Aarav,Kapoor,aarav.kapoor108@company.com,Operations,60367.0,60367.0,49500.94,0.0,60367.0,0.0,XXXXXX1108,False,active,False,0.0,0.0,22
+EMP-1109,Siddharth,Iyer,siddharth.iyer109@company.com,Sales,54068.0,54068.0,44335.76,0.0,54068.0,0.0,XXXXXX1109,False,active,False,0.0,0.0,22
+EMP-1110,Kabir,Gupta,kabir.gupta110@company.com,HR,49209.0,49299.0,40425.18,0.0,49209.0,0.0,XXXXXX1110,False,active,False,2.0,150.0,22
+EMP-1111,Siddharth,Iyer,siddharth.iyer111@company.com,Customer Support,72248.0,72248.0,59243.36,0.0,72248.0,0.0,XXXXXX1111,False,active,False,0.0,0.0,22
+EMP-1112,Gaurav,Chopra,gaurav.chopra112@company.com,Legal,83278.0,83548.0,68509.36,0.0,83278.0,0.0,XXXXXX1112,False,active,False,6.0,0.0,22
+EMP-1113,Nisha,Choudhury,nisha.choudhury113@company.com,Legal,76259.0,76259.0,62532.38,0.0,76259.0,0.0,XXXXXX1113,False,active,False,0.0,0.0,22
+EMP-1114,Ishita,Deshmukh,ishita.deshmukh114@company.com,Legal,80272.0,80542.0,66044.44,0.0,80272.0,0.0,XXXXXX1114,False,active,False,6.0,450.0,22
+EMP-1115,Pooja,Bhatnagar,pooja.bhatnagar115@company.com,HR,76996.0,76996.0,63136.72,0.0,76996.0,0.0,XXXXXX1115,False,active,False,0.0,0.0,22
+EMP-1116,Riya,Malhotra,riya.malhotra116@company.com,Engineering,70484.0,70484.0,57796.88,0.0,70484.0,0.0,XXXXXX1116,False,active,False,0.0,450.0,22
+EMP-1117,Deepika,Deshmukh,deepika.deshmukh117@company.com,Finance,75630.0,75630.0,62016.6,0.0,75630.0,0.0,XXXXXX1117,False,active,False,0.0,300.0,22
+EMP-1118,Pooja,Sharma,pooja.sharma118@company.com,Legal,83790.0,83970.0,68855.4,0.0,83790.0,0.0,XXXXXX1118,False,active,False,4.0,450.0,22
+EMP-1119,Arjun,Kapoor,arjun.kapoor119@company.com,Legal,53893.0,54253.0,44487.46,0.0,53893.0,0.0,XXXXXX1119,False,active,False,8.0,150.0,22
+EMP-1120,Ananya,Verma,ananya.verma120@company.com,Operations,69844.0,70000.0,57400.0,0.0,69844.0,0.0,XXXXXX4821,False,terminated,False,0.0,0.0,22
+EMP-1121,Aarav,Reddy,aarav.reddy121@company.com,Marketing,94887.0,94977.0,77881.14,0.0,94887.0,0.0,XXXXXX1121,False,active,False,2.0,0.0,22
+EMP-1122,Manish,Chopra,manish.chopra122@company.com,Operations,50367.0,50457.0,41374.74,0.0,50367.0,0.0,XXXXXX1122,False,active,False,2.0,0.0,22
+EMP-1123,Kavya,Iyer,kavya.iyer123@company.com,Engineering,67935.0,67935.0,55706.7,0.0,67935.0,0.0,XXXXXX1123,False,active,False,0.0,450.0,22
+EMP-1124,Rohan,Verma,rohan.verma124@company.com,Engineering,61205.0,61205.0,50188.1,0.0,61205.0,0.0,XXXXXX1124,False,active,False,0.0,0.0,22
+EMP-1125,Simran,Gupta,simran.gupta125@company.com,HR,53272.0,53362.0,43756.84,0.0,53272.0,0.0,XXXXXX1125,False,active,False,2.0,450.0,22
+EMP-1126,Priya,Choudhury,priya.choudhury126@company.com,HR,75476.0,75746.0,62111.72,0.0,75476.0,0.0,XXXXXX1126,False,active,False,6.0,0.0,22
+EMP-1127,Manish,Nair,manish.nair127@company.com,Finance,84707.0,84887.0,69607.34,0.0,84707.0,0.0,XXXXXX1127,False,active,False,4.0,450.0,22
+EMP-1128,Amit,Singh,amit.singh128@company.com,Finance,65384.0,65384.0,53614.88,0.0,65384.0,0.0,XXXXXX1128,False,active,False,0.0,300.0,22
+EMP-1129,Arjun,Rao,arjun.rao129@company.com,Legal,70995.0,71265.0,58437.3,0.0,70995.0,0.0,XXXXXX1129,False,active,False,6.0,0.0,22
+EMP-1130,Rohan,Choudhury,rohan.choudhury130@company.com,HR,51678.0,51948.0,42597.36,0.0,51678.0,0.0,XXXXXX1130,False,active,False,6.0,0.0,22
+EMP-1131,Nisha,Bhatnagar,nisha.bhatnagar131@company.com,Sales,82088.0,82448.0,67607.36,0.0,82088.0,0.0,XXXXXX1131,False,active,False,8.0,0.0,22
+EMP-1132,Meera,Iyer,meera.iyer132@company.com,Legal,88353.0,88353.0,72449.46,0.0,88353.0,0.0,XXXXXX1132,False,active,False,0.0,0.0,22
+EMP-1133,Dev,Reddy,dev.reddy133@company.com,Engineering,72528.0,72888.0,59768.16,0.0,72528.0,0.0,XXXXXX1133,False,active,False,8.0,150.0,22
+EMP-1134,Priya,Chopra,priya.chopra134@company.com,Marketing,86653.0,87013.0,71350.66,0.0,86653.0,0.0,XXXXXX1134,False,active,False,8.0,150.0,22
+EMP-1135,Amit,Gupta,amit.gupta135@company.com,Legal,56543.0,56813.0,46586.66,0.0,56543.0,0.0,XXXXXX1135,False,active,False,6.0,300.0,22
+EMP-1136,Rahul,Bose,rahul.bose136@company.com,Customer Support,75465.0,75555.0,61955.1,0.0,75465.0,0.0,XXXXXX1136,False,active,False,2.0,450.0,22
+EMP-1137,Varun,Bose,varun.bose137@company.com,Marketing,61088.0,61448.0,50387.36,0.0,61088.0,0.0,XXXXXX1137,False,active,False,8.0,0.0,22
+EMP-1138,Aditya,Saxena,aditya.saxena138@company.com,HR,94183.0,94273.0,77303.86,0.0,94183.0,0.0,XXXXXX1138,False,active,False,2.0,300.0,22
+EMP-1139,Simran,Deshmukh,simran.deshmukh139@company.com,Marketing,46880.0,46970.0,38515.4,0.0,46880.0,0.0,XXXXXX1139,False,active,False,2.0,0.0,22
+EMP-1140,Ananya,Malhotra,ananya.malhotra140@company.com,HR,68253.0,68613.0,56262.66,0.0,68253.0,0.0,XXXXXX1140,False,active,False,8.0,0.0,22
+EMP-1141,Siddharth,Bose,siddharth.bose141@company.com,Operations,81424.0,81424.0,66767.68,0.0,81424.0,0.0,XXXXXX1141,False,active,False,0.0,300.0,22
+EMP-1142,Karan,Kapoor,karan.kapoor142@company.com,HR,92190.0,92280.0,75669.6,0.0,92190.0,0.0,XXXXXX1142,False,active,False,2.0,150.0,22
+EMP-1143,Pooja,Joshi,pooja.joshi143@company.com,Customer Support,87329.0,87599.0,71831.18,0.0,87329.0,0.0,XXXXXX1143,False,active,False,6.0,150.0,22
+EMP-1144,Aarav,Sharma,aarav.sharma144@company.com,Sales,64283.0,64283.0,52712.06,0.0,64283.0,0.0,XXXXXX1144,False,active,False,0.0,150.0,22
+EMP-1145,Amit,Joshi,amit.joshi145@company.com,Operations,88513.0,88693.0,72728.26,0.0,88513.0,0.0,XXXXXX1145,False,active,False,4.0,0.0,22
+EMP-1146,Tanvi,Iyer,tanvi.iyer146@company.com,Marketing,72885.0,73155.0,59987.1,0.0,72885.0,0.0,XXXXXX1146,False,active,False,6.0,300.0,22
+EMP-1147,Siddharth,Nair,siddharth.nair147@company.com,Customer Support,62754.0,62754.0,51458.28,0.0,62754.0,0.0,XXXXXX1147,False,active,False,0.0,0.0,22
+EMP-1148,Sneha,Singh,sneha.singh148@company.com,HR,65679.0,65679.0,53856.78,0.0,65679.0,0.0,XXXXXX1148,False,active,False,0.0,450.0,22
+EMP-1149,Pooja,Mehta,pooja.mehta149@company.com,HR,59180.0,59450.0,48749.0,0.0,59180.0,0.0,XXXXXX1149,False,active,False,6.0,150.0,22
+EMP-1150,Aditya,Choudhury,aditya.choudhury150@company.com,Operations,51588.0,51948.0,42597.36,0.0,51588.0,0.0,XXXXXX1150,False,active,False,8.0,0.0,22
+EMP-1151,Ishita,Joshi,ishita.joshi151@company.com,Marketing,56759.0,56759.0,46542.38,0.0,56759.0,0.0,XXXXXX1151,False,active,False,0.0,0.0,22
+EMP-1152,Amit,Iyer,amit.iyer152@company.com,Finance,62977.0,62977.0,51641.14,0.0,62977.0,0.0,XXXXXX1152,False,active,False,0.0,0.0,22
+EMP-1153,Pooja,Rao,pooja.rao153@company.com,Finance,86803.0,87163.0,71473.66,0.0,86803.0,0.0,XXXXXX1153,False,active,False,8.0,150.0,22
+EMP-1154,Priya,Sharma,priya.sharma154@company.com,Operations,75762.0,75852.0,62198.64,0.0,75762.0,0.0,XXXXXX1154,False,active,False,2.0,150.0,22
+EMP-1155,Siddharth,Mehta,siddharth.mehta155@company.com,Engineering,61546.0,61906.0,50762.92,0.0,61546.0,0.0,XXXXXX1155,False,active,False,8.0,150.0,22
+EMP-1156,Priya,Kapoor,priya.kapoor156@company.com,Legal,77227.0,77227.0,63326.14,0.0,77227.0,0.0,XXXXXX1156,False,active,False,0.0,300.0,22
+EMP-1157,Rahul,Verma,rahul.verma157@company.com,Finance,54777.0,55137.0,45212.34,0.0,54777.0,0.0,XXXXXX1157,False,active,False,8.0,300.0,22
+EMP-1158,Ishita,Kapoor,ishita.kapoor158@company.com,HR,52762.0,52942.0,43412.44,0.0,52762.0,0.0,XXXXXX1158,False,active,False,4.0,150.0,22
+EMP-1159,Simran,Bhatnagar,simran.bhatnagar159@company.com,HR,79247.0,79337.0,65056.34,0.0,79247.0,0.0,XXXXXX1159,False,active,False,2.0,150.0,22
+EMP-1160,Swati,Saxena,swati.saxena160@company.com,Operations,83569.0,83659.0,68600.38,0.0,83569.0,0.0,XXXXXX1160,False,active,False,2.0,0.0,22
+EMP-1161,Varun,Bhatnagar,varun.bhatnagar161@company.com,Engineering,84952.0,85222.0,69882.04,0.0,84952.0,0.0,XXXXXX1161,False,active,False,6.0,0.0,22
+EMP-1162,Manish,Patel,manish.patel162@company.com,HR,62343.0,62613.0,51342.66,0.0,62343.0,0.0,XXXXXX1162,False,active,False,6.0,0.0,22
+EMP-1163,Ananya,Joshi,ananya.joshi163@company.com,Finance,81175.0,81175.0,66563.5,0.0,81175.0,0.0,XXXXXX1163,False,active,False,0.0,0.0,22
+EMP-1164,Arjun,Chopra,arjun.chopra164@company.com,Customer Support,90178.0,90358.0,74093.56,0.0,90178.0,0.0,XXXXXX1164,False,active,False,4.0,150.0,22
+EMP-1165,Ishita,Verma,ishita.verma165@company.com,HR,63881.0,64151.0,52603.82,0.0,63881.0,0.0,XXXXXX1165,False,active,False,6.0,0.0,22
+EMP-1166,Amit,Saxena,amit.saxena166@company.com,Sales,90048.0,90048.0,73839.36,0.0,90048.0,0.0,XXXXXX1166,False,active,False,0.0,0.0,22
+EMP-1167,Sonam,Choudhury,sonam.choudhury167@company.com,HR,72861.0,72861.0,59746.02,0.0,72861.0,0.0,XXXXXX1167,False,active,False,0.0,300.0,22
+EMP-1168,Sneha,Gupta,sneha.gupta168@company.com,Operations,54321.0,54321.0,44543.22,0.0,54321.0,0.0,XXXXXX1168,False,active,False,0.0,0.0,22
+EMP-1169,Ananya,Rao,ananya.rao169@company.com,Operations,73780.0,73780.0,60499.6,0.0,73780.0,0.0,XXXXXX1169,False,active,False,0.0,150.0,22
+EMP-1170,Amit,Rao,amit.rao170@company.com,Legal,62841.0,63021.0,51677.22,0.0,62841.0,0.0,XXXXXX1170,False,active,False,4.0,300.0,22
+EMP-1171,Tanvi,Saxena,tanvi.saxena171@company.com,Sales,84192.0,84192.0,69037.44,0.0,84192.0,0.0,XXXXXX1171,False,active,False,0.0,150.0,22
+EMP-1172,Kavya,Reddy,kavya.reddy172@company.com,Operations,46695.0,46695.0,38289.9,0.0,46695.0,0.0,XXXXXX1172,False,active,False,0.0,0.0,22
+EMP-1173,Deepika,Choudhury,deepika.choudhury173@company.com,Engineering,89058.0,89418.0,73322.76,0.0,89058.0,0.0,XXXXXX1173,False,active,False,8.0,0.0,22
+EMP-1174,Varun,Verma,varun.verma174@company.com,Finance,75834.0,76014.0,62331.48,0.0,75834.0,0.0,XXXXXX1174,False,active,False,4.0,450.0,22
+EMP-1175,Aarav,Bose,aarav.bose175@company.com,Finance,83360.0,83450.0,68429.0,0.0,83360.0,0.0,XXXXXX1175,False,active,False,2.0,450.0,22
+EMP-1176,Gaurav,Malhotra,gaurav.malhotra176@company.com,Sales,75802.0,75802.0,62157.64,0.0,75802.0,0.0,XXXXXX1176,False,active,False,0.0,150.0,22
+EMP-1177,Siddharth,Reddy,siddharth.reddy177@company.com,Sales,55539.0,55539.0,45541.98,0.0,55539.0,0.0,XXXXXX1177,False,active,False,0.0,150.0,22
+EMP-1178,Amit,Malhotra,amit.malhotra178@company.com,Operations,88423.0,88513.0,72580.66,0.0,88423.0,0.0,XXXXXX1178,False,active,False,2.0,300.0,22
+EMP-1179,Neha,Saxena,neha.saxena179@company.com,Sales,65612.0,65612.0,53801.84,0.0,65612.0,0.0,XXXXXX1179,False,active,False,0.0,0.0,22
+EMP-1180,Priya,Deshmukh,priya.deshmukh180@company.com,Engineering,88100.0,88460.0,72537.2,0.0,88100.0,0.0,XXXXXX1180,False,active,False,8.0,300.0,22
+EMP-1181,Aarav,Chopra,aarav.chopra181@company.com,Engineering,57293.0,57473.0,47127.86,0.0,57293.0,0.0,XXXXXX1181,False,active,False,4.0,0.0,22
+EMP-1182,Simran,Malhotra,simran.malhotra182@company.com,Customer Support,94806.0,94806.0,77740.92,0.0,94806.0,0.0,XXXXXX1182,False,active,False,0.0,0.0,22
+EMP-1183,Aditya,Iyer,aditya.iyer183@company.com,Finance,63876.0,63966.0,52452.12,0.0,63876.0,0.0,XXXXXX1183,False,active,False,2.0,450.0,22
+EMP-1184,Tanvi,Singh,tanvi.singh184@company.com,Engineering,86289.0,86469.0,70904.58,0.0,86289.0,0.0,XXXXXX1184,False,active,False,4.0,0.0,22
+EMP-1185,Amit,Mehta,amit.mehta185@company.com,Operations,81099.0,81099.0,66501.18,0.0,81099.0,0.0,XXXXXX1185,False,active,False,0.0,300.0,22
+EMP-1186,Riya,Kapoor,riya.kapoor186@company.com,HR,52435.0,52525.0,43070.5,0.0,52435.0,0.0,XXXXXX1186,False,active,False,2.0,0.0,22
+EMP-1187,Rahul,Gupta,rahul.gupta187@company.com,Customer Support,91963.0,91963.0,75409.66,0.0,91963.0,0.0,XXXXXX1187,False,active,False,0.0,300.0,22
+EMP-1188,Amit,Bose,amit.bose188@company.com,Legal,76621.0,76711.0,62903.02,0.0,76621.0,0.0,XXXXXX1188,False,active,False,2.0,0.0,22
+EMP-1189,Aarav,Iyer,aarav.iyer189@company.com,Finance,70138.0,70138.0,57513.16,0.0,70138.0,0.0,XXXXXX1189,False,active,False,0.0,300.0,22
+EMP-1190,Dev,Gupta,dev.gupta190@company.com,Sales,63104.0,63464.0,52040.48,0.0,63104.0,0.0,XXXXXX1190,False,active,False,8.0,150.0,22
+EMP-1191,Siddharth,Trivedi,siddharth.trivedi191@company.com,Operations,45168.0,45168.0,37037.76,0.0,45168.0,0.0,XXXXXX1191,False,active,False,0.0,450.0,22
+EMP-1192,Ishita,Choudhury,ishita.choudhury192@company.com,Customer Support,54738.0,54828.0,44958.96,0.0,54738.0,0.0,XXXXXX1192,False,active,False,2.0,300.0,22
+EMP-1193,Tanvi,Nair,tanvi.nair193@company.com,Marketing,81170.0,81530.0,66854.6,0.0,81170.0,0.0,XXXXXX1193,False,active,False,8.0,300.0,22
+EMP-1194,Kabir,Saxena,kabir.saxena194@company.com,Marketing,57363.0,57633.0,47259.06,0.0,57363.0,0.0,XXXXXX1194,False,active,False,6.0,0.0,22
+EMP-1195,Varun,Deshmukh,varun.deshmukh195@company.com,HR,71920.0,71920.0,58974.4,0.0,71920.0,0.0,XXXXXX1195,False,active,False,0.0,0.0,22
+EMP-1196,Kavya,Malhotra,kavya.malhotra196@company.com,Legal,70302.0,70572.0,57869.04,0.0,70302.0,0.0,XXXXXX1196,False,active,False,6.0,450.0,22
+EMP-1197,Vikram,Malhotra,vikram.malhotra197@company.com,Engineering,53273.0,53453.0,43831.46,0.0,53273.0,0.0,XXXXXX1197,False,active,False,4.0,300.0,22
+EMP-1198,Siddharth,Singh,siddharth.singh198@company.com,Customer Support,51534.0,51714.0,42405.48,0.0,51534.0,0.0,XXXXXX1198,False,active,False,4.0,150.0,22
+EMP-1199,Arjun,Gupta,arjun.gupta199@company.com,Legal,87911.0,87911.0,72087.02,0.0,87911.0,0.0,XXXXXX1199,False,active,False,0.0,0.0,22
+EMP-1200,Tanvi,Bose,tanvi.bose200@company.com,Marketing,85845.0,86115.0,70614.3,0.0,85845.0,0.0,XXXXXX1200,False,active,False,6.0,150.0,22
+EMP-1042,Karan,Iyer,karan.iyer42@company.com,Finance,92405.0,62000.0,75919.7,0.0,92405.0,0.0,XXXXXX1042,False,active,False,4.0,300.0,22

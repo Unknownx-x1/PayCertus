@@ -92,6 +92,34 @@ class IngestionService:
             except (ValueError, TypeError):
                 attendance = 22
 
+            # Additional Multi-Signal Anomaly Detection Fields
+            try:
+                bonus_val = float(get_flex_val(r, ["bonus", "bonus_amount", "excessive_bonus", "unexplained_bonus"], 0.0))
+            except (ValueError, TypeError):
+                bonus_val = 0.0
+
+            try:
+                prev_sal = float(get_flex_val(r, ["previous_salary", "prev_salary", "old_salary", "last_salary"], base_sal))
+            except (ValueError, TypeError):
+                prev_sal = base_sal
+
+            try:
+                sal_inc_pct = float(get_flex_val(r, ["salary_increase_pct", "salary_increase", "salary_spike_pct", "hike_pct"], 0.0))
+            except (ValueError, TypeError):
+                if prev_sal > 0 and base_sal > prev_sal:
+                    sal_inc_pct = ((base_sal - prev_sal) / prev_sal) * 100.0
+                else:
+                    sal_inc_pct = 0.0
+
+            raw_bank_change = get_flex_val(r, ["bank_account_changed", "recent_bank_change", "account_changed", "bank_change_date"], False)
+            bank_changed = str(raw_bank_change).strip().lower() in ["true", "1", "yes", "y", "recent", "changed"] if raw_bank_change is not None else False
+
+            raw_status = str(get_flex_val(r, ["status", "employment_status", "employee_status", "state"], "active")).strip().lower()
+            is_terminated = bool(get_flex_val(r, ["is_terminated"], False)) or any(k in raw_status for k in ["terminate", "exit", "fired", "inactive"])
+
+            raw_ghost = get_flex_val(r, ["is_ghost", "ghost_employee", "ghost"], False)
+            is_ghost = bool(raw_ghost) or "ghost" in raw_status or "ghost" in emp_id.lower() or "ghost" in first_name.lower()
+
             # STRICT RULE: Do NOT invent manager_id, device_id, or ip_address if missing!
             mgr_id = get_flex_val(r, ["manager_id", "manager", "reports_to"], None)
             dev_id = get_flex_val(r, ["device_id", "device", "hardware_id"], None)
@@ -108,8 +136,15 @@ class IngestionService:
                 "base_salary": base_sal,
                 "gross_salary": gross,
                 "net_salary": net,
+                "bonus": bonus_val,
+                "previous_salary": prev_sal,
+                "salary_increase_pct": sal_inc_pct,
                 "bank_account_no": bank_acc,
                 "bank_name": bank_name,
+                "bank_account_changed": bank_changed,
+                "employment_status": raw_status,
+                "is_terminated": is_terminated,
+                "is_ghost": is_ghost,
                 "overtime_hours": ot_hrs,
                 "overtime_pay": ot_pay,
                 "reimbursements": claims,

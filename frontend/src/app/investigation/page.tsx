@@ -46,6 +46,7 @@ function InvestigationContent() {
   const activeEmp = transactions.find(t => t.employee_id === selectedEmpId) || transactions[0];
 
   const ruleFindings = findings.filter(f => f.layer === 'RULE' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
+  const crossSignalFindings = findings.filter(f => f.layer === 'CROSS_SIGNAL' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
   const mlFindings = findings.filter(f => f.layer === 'ANOMALY' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
   const graphFindings = findings.filter(f => f.layer === 'GRAPH' && (f.employee_id === selectedEmpId || (activeEmp && f.employee_name?.includes(activeEmp.employee_name))));
 
